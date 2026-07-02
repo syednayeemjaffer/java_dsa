@@ -1,72 +1,85 @@
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-
+        int arr [] = {4,3,2,5};
+        MergeSort.mergesort(arr,0,arr.length);
+        System.out.println(Arrays.toString(arr));
     }
 }
 
 class MergeSort {
-
-    public static void mergeSort(int[] arr, int left, int right) {
-
-        if (left >= right)
+    public static void mergesort(int[]arr,int left,int rigth){
+        if(rigth-left == 1){
             return;
+        }
+        int mid = (left+rigth)/2;
+        mergesort(arr,left,mid);
+        mergesort(arr,mid,rigth);
 
-        int mid = (left + right) / 2;
-
-        mergeSort(arr, left, mid);
-
-        mergeSort(arr, mid + 1, right);
-
-        merge(arr, left, mid, right);
+        sort(arr,left,mid,rigth);
     }
 
-    public static void merge(int[] arr, int left, int mid, int right) {
+    private static void sort(int []arr,int left,int mid,int right){
+        int join[] = new int[right-left];
+        int i = left , j = mid , k =0;
 
-        int n1 = mid - left + 1;
-        int n2 = right - mid;
-
-        int[] L = new int[n1];
-        int[] R = new int[n2];
-
-        for (int i = 0; i < n1; i++)
-            L[i] = arr[left + i];
-
-        for (int j = 0; j < n2; j++)
-            R[j] = arr[mid + 1 + j];
-
-        int i = 0;
-        int j = 0;
-        int k = left;
-
-        while (i < n1 && j < n2) {
-
-            if (L[i] <= R[j]) {
-                arr[k] = L[i];
-                i++;
-            } else {
-                arr[k] = R[j];
-                j++;
+        while (i<mid && j<right){
+            if(arr[i]<arr[j]){
+                join[k++]=arr[i++];
+            }else {
+                join[k++]=arr[j++];
             }
-
-            k++;
         }
 
-        while (i < n1) {
-            arr[k] = L[i];
-            i++;
-            k++;
+        while (i<mid){
+            join[k++]=arr[i++];
+        }
+        while (j<right){
+            join[k++]=arr[j++];
         }
 
-        while (j < n2) {
-            arr[k] = R[j];
-            j++;
-            k++;
+        for (k = 0;k<join.length;k++){
+            arr[left+k] = join[k];
         }
     }
-
 }
+//class MergeSort {
+//    public static int[] mergesort(int []arr){
+//        if(arr.length == 1){
+//            return arr ;
+//        }
+//        int mid = arr.length / 2;
+//
+//        int left[] = mergesort(Arrays.copyOfRange(arr,0,mid));
+//        int right[] = mergesort(Arrays.copyOfRange(arr,mid,arr.length));
+//
+//        return sort(left,right);
+//    }//3 4
+//    // 2 5
+//    private static int[] sort(int left[],int rigth[]){
+//        int join[] = new int[left.length + rigth.length];
+//        int i = 0,j=0,k=0;
+//        while (i<left.length && j<rigth.length){
+//            if (left[i]<rigth[j]){
+//                join[k++]=left[i++];
+//            }else {
+//                join[k++]=rigth[j++];
+//            }
+//        }
+//        while (i<left.length)
+//            join[k++]=left[i++];
+//
+//        while (j<rigth.length)
+//            join[k++]=rigth[j++];
+//
+//        return join;
+//
+//    }
+//}
 
 //mergeSort(0,4)
 //L=0 R=4 M=2
