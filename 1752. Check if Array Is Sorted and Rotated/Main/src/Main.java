@@ -5,43 +5,66 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
         Solution s = new Solution();
-        int a[] = {2,1,3,4};
+        int a[] = {2,1,3,4};//rot=3
         System.out.println(s.check(a));
+
     }
 }
+
 class Solution {
     public boolean check(int[] a) {
-        int b [] = Arrays.copyOf(a,a.length);
-        Arrays.sort(b);
-        boolean result = Arrays.equals(a,b);
-        if (result){
-            return result;
-        }
-        for(int i = 0;i<a.length;i++){
-            int arr[] = rotate(b,i);
-            if (Arrays.equals(a,arr)){
-                return true;
+        int i = 0,j=1;
+        boolean checks = false;
+        while(j<a.length){
+            if(a[i]<a[j]) {
+                i++;
+                j++;
+            }else {
+                if (!checks){
+                    checks = true;
+                    i++;
+                    j++;
+                }else {
+                    return false;
+                }
             }
         }
-
-        return false;
-    }
-    public static int [] rotate(int arr[],int num){
-        int i = num;
-        int j = 0;
-        int result [] = new int[arr.length];
-
-        while(i<arr.length){
-            result[j]=arr[i];
-            i++;
-            j++;
-        }
-        i=0;
-        while(num != 0 && j<arr.length){
-            result[j] = arr[i];
-            j++;
-            i++;
-        }
-        return result;
+        return checks;
     }
 }
+//class Solution {
+//    public boolean check(int[] a) {
+//        int b [] = Arrays.copyOf(a,a.length);
+//        Arrays.sort(b);
+//        boolean result = Arrays.equals(a,b);
+//        if (result){
+//            return result;
+//        }
+//        for(int i = 0;i<a.length;i++){
+//            int arr[] = rotate(b,i);
+//            if (Arrays.equals(a,arr)){
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
+//    public static int [] rotate(int arr[],int num){
+//        int i = num;
+//        int j = 0;
+//        int result [] = new int[arr.length];
+//
+//        while(i<arr.length){
+//            result[j]=arr[i];
+//            i++;
+//            j++;
+//        }
+//        i=0;
+//        while(num != 0 && j<arr.length){
+//            result[j] = arr[i];
+//            j++;
+//            i++;
+//        }
+//        return result;
+//    }
+//}
