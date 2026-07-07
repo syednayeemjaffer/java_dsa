@@ -20,9 +20,7 @@ public class Bus {
     // Default Constructor
     // =========================
 
-    public Bus() {
-
-    }
+    public Bus() {}
 
     public Bus(int busId,
                String busNumber,
