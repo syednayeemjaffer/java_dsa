@@ -7,23 +7,36 @@ import java.util.Set;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {//a e i o u
     public static void main(String[] args) {
-        int arr[] = {7, 1, 2, 3, 4, 5, 6};//7, 1, 6, 2, 5, 3, 4
+        int n = 3536;
         Solution s = new Solution();
-        System.out.println(s.alternateSort(arr));
+        System.out.println(s.primeSum(n));
     }
 }
 class Solution {
-    public static ArrayList<Integer> alternateSort(int[] arr) {
-        Arrays.sort(arr);//1 2 3 4 5 6 7
-        ArrayList<Integer> result = new ArrayList<>();
-        int i=0,j=arr.length-1;
-        while (i<j){
-            result.add(arr[j--]);
-            result.add(arr[i++]);
+    static int primeSum(int n) {
+        // code here
+        int out = 0;
+        while (n>0){
+            int add = n%10;
+            if(isPrime(n%10)){
+                out += add;
+            }
+            n /= 10;
         }
-        if(i == j)
-            result.add(arr[i]);
-
-        return result;
+        return out;
+    }
+    static boolean isPrime(int n){
+        if(n <= 2){
+            return false;
+        }
+        if (n % 2 == 0) {
+            return false;
+        }
+        for(int i = 3;i * i <=n;i++){
+            if(n % i == 0){
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -1,17 +1,22 @@
 package app;
 
+import model.Bus;
 import service.BusService;
-
+import model.Customer;
+import service.CustomerService;
+import java.util.List;
 import java.util.Scanner;
 
 public class Application {
 
     private final Scanner scanner;
     private final BusService busService;
+    private final CustomerService customerService;
 
     public Application() {
         scanner = new Scanner(System.in);
         busService = new BusService();
+        customerService = new CustomerService();
     }
 
     public void start() {
@@ -19,7 +24,6 @@ public class Application {
             showMainMenu();
             int choice = scanner.nextInt();
             scanner.nextLine();
-
             switch (choice) {
                 case 1:
                     adminMenu();
@@ -50,28 +54,33 @@ public class Application {
     private void adminMenu() {
         while (true) {
             System.out.println();
-            System.out.println("========== ADMIN MENU ==========");
-            System.out.println("1. Add Bus");
-            System.out.println("2. View All Buses");
-            System.out.println("3. Delete Bus");
-            System.out.println("4. Back");
+            System.out.println("======= ADMIN MENU =======");
+            System.out.println("1. View All Buses");
+            System.out.println("2. Search Bus");
+            System.out.println("3. Add Bus");
+            System.out.println("4. Update Bus Fare");
+            System.out.println("5. Delete Bus");
+            System.out.println("6. Back");
             System.out.print("Enter Choice : ");
             int choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    addBus();
+                    displayAllBuses();
                     break;
                 case 2:
-                    busService.displayAllBuses();
+                    searchBus();
                     break;
                 case 3:
-                    System.out.print("Enter Bus ID : ");
-                    int id = scanner.nextInt();
-                    scanner.nextLine();
-                    busService.deleteBus(id);
+                    addBus();
                     break;
                 case 4:
+                    updateFare();
+                    break;
+                case 5:
+                    deleteBus();
+                    break;
+                case 6:
                     return;
                 default:
                     System.out.println("Invalid Choice.");
@@ -83,19 +92,20 @@ public class Application {
         while (true) {
             System.out.println();
             System.out.println("======= CUSTOMER MENU =======");
-            System.out.println("1. View All Buses");
-            System.out.println("2. Search Bus");
+            System.out.println("1. Register");
+            System.out.println("2. Login");
             System.out.println("3. Back");
             System.out.print("Enter Choice : ");
+
             int choice = scanner.nextInt();
             scanner.nextLine();
 
             switch (choice) {
                 case 1:
-                    busService.displayAllBuses();
+                    registerCustomer();
                     break;
                 case 2:
-                    searchBus();
+                    loginCustomer();
                     break;
                 case 3:
                     return;
@@ -104,7 +114,6 @@ public class Application {
             }
         }
     }
-
     private void addBus() {
         System.out.println();
         System.out.print("Bus ID : ");
@@ -129,29 +138,135 @@ public class Application {
         System.out.print("Fare : ");
         double fare = scanner.nextDouble();
         scanner.nextLine();
-        busService.addBus(new model.Bus(
-                busId,
-                busNumber,
-                busName,
-                source,
-                destination,
-                departure,
-                arrival,
-                totalSeats,
-                availableSeats,
-                fare
-        ));
+        boolean success = busService.addBus(new Bus(
+                busId, busNumber, busName, source, destination,
+                departure, arrival, totalSeats, availableSeats, fare));
+        System.out.println(success ? "Bus Added Successfully." : "Unable to Add Bus.");
     }
 
     private void searchBus() {
         System.out.print("Enter Bus ID : ");
         int id = scanner.nextInt();
         scanner.nextLine();
-        var bus = busService.searchBus(id);
-        if (bus == null) {
-            System.out.println("Bus Not Found.");
-        } else {
+        Bus bus = busService.searchBus(id);
+        System.out.println(bus == null ? "Bus Not Found." : bus);
+    }
+
+    private void displayAllBuses() {
+        List<Bus> buses = busService.getAllBuses();
+        if (buses.isEmpty()) {
+            System.out.println("No buses available.");
+            return;
+        }
+        for (Bus bus : buses) {
             System.out.println(bus);
+        }
+    }
+
+    private void updateFare() {
+        System.out.print("Enter Bus ID : ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Enter New Fare : ");
+        double fare = scanner.nextDouble();
+        scanner.nextLine();
+        System.out.println(busService.updateFare(id, fare)
+                ? "Fare Updated Successfully." : "Bus Not Found.");
+    }
+
+    private void deleteBus() {
+        System.out.print("Enter Bus ID : ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println(busService.deleteBus(id)
+                ? "Bus Deleted Successfully." : "Bus Not Found.");
+    }
+
+    private void registerCustomer() {
+        System.out.println("\n===== CUSTOMER REGISTRATION =====");
+
+        System.out.print("User ID : ");
+        int userId = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Name : ");
+        String name = scanner.nextLine();
+
+        System.out.print("Phone Number : ");
+        String phone = scanner.nextLine();
+
+        System.out.print("Email : ");
+        String email = scanner.nextLine();
+
+        System.out.print("Username : ");
+        String username = scanner.nextLine();
+
+        System.out.print("Password : ");
+        String password = scanner.nextLine();
+
+        Customer customer = new Customer(
+                userId,
+                name,
+                phone,
+                email,
+                username,
+                password
+        );
+
+        if (customerService.register(customer)) {
+            System.out.println("Registration Successful.");
+        } else {
+            System.out.println("Username already exists.");
+        }
+    }
+
+    private void loginCustomer() {
+        System.out.println("\n===== CUSTOMER LOGIN =====");
+
+        System.out.print("Username : ");
+        String username = scanner.nextLine();
+
+        System.out.print("Password : ");
+        String password = scanner.nextLine();
+
+        Customer customer = customerService.login(username, password);
+
+        if (customer == null) {
+            System.out.println("Invalid Username or Password.");
+            return;
+        }
+
+        customerDashboard(customer);
+    }
+    private void customerDashboard(Customer customer) {
+        while (true) {
+            System.out.println();
+            System.out.println("===== CUSTOMER DASHBOARD =====");
+            System.out.println("Welcome " + customer.getName());
+            System.out.println("1. View Profile");
+            System.out.println("2. View All Buses");
+            System.out.println("3. Search Bus");
+            System.out.println("4. Logout");
+            System.out.print("Enter Choice : ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.println(customer);
+                    break;
+                case 2:
+                    displayAllBuses();
+                    break;
+                case 3:
+                    searchBus();
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Invalid Choice.");
+            }
         }
     }
 }

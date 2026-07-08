@@ -21,9 +21,8 @@ public class BusRepository {
      * Return all buses
      */
     public List<Bus> getAllBuses() {
-        return buses;
-    }
-    /**
+        return new ArrayList<>(buses);
+    }    /**
      * Find a bus using busId
      */
     public Bus findBusById(int busId) {
@@ -44,5 +43,32 @@ public class BusRepository {
             return true;
         }
         return false;
+    }
+    public Bus findBusByNumber(String busNumber) {
+
+        for (Bus bus : buses) {
+
+            if (bus.getBusNumber().equalsIgnoreCase(busNumber)) {
+                return bus;
+            }
+
+        }
+
+        return null;
+
+    }
+
+    public boolean updateFare(int busId, double newFare) {
+
+        Bus bus = findBusById(busId);
+
+        if (bus == null) {
+            return false;
+        }
+
+        bus.setFare(newFare);
+
+        return true;
+
     }
 }

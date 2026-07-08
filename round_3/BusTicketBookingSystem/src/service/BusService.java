@@ -6,38 +6,45 @@ import repository.BusRepository;
 import java.util.List;
 
 public class BusService {
+
     private final BusRepository busRepository;
 
     public BusService() {
         busRepository = new BusRepository();
     }
 
-    public void addBus(Bus bus) {
+    public boolean addBus(Bus bus) {
+        if (busRepository.findBusByNumber(bus.getBusNumber()) != null) {
+            System.out.println("Bus Number already exists.");
+            return false;
+        }
+
+        if (bus.getFare() <= 0) {
+            System.out.println("Invalid Fare.");
+            return false;
+        }
+        if (bus.getTotalSeats() <= 0) {
+            System.out.println("Invalid Seat Count.");
+            return false;
+        }
+
         busRepository.addBus(bus);
-        System.out.println("Bus Added Successfully.");
+        return true;
     }
 
-    public void displayAllBuses() {
-        List<Bus> buses = busRepository.getAllBuses();
-        if (buses.isEmpty()) {
-            System.out.println("No buses available.");
-            return;
-        }
-        for (Bus bus : buses) {
-            System.out.println(bus);
-        }
+    public List<Bus> getAllBuses() {
+        return busRepository.getAllBuses();
     }
+
     public Bus searchBus(int busId) {
         return busRepository.findBusById(busId);
     }
 
-    public void deleteBus(int busId) {
-        boolean deleted = busRepository.deleteBus(busId);
-        if (deleted) {
-            System.out.println("Bus deleted successfully.");
-        } else {
-            System.out.println("Bus not found.");
-        }
+    public boolean deleteBus(int busId) {
+        return busRepository.deleteBus(busId);
     }
 
+    public boolean updateFare(int busId, double fare) {
+        return busRepository.updateFare(busId, fare);
+    }
 }
