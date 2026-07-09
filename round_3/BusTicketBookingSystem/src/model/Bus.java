@@ -1,4 +1,6 @@
 package model;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Bus {
     // =========================
@@ -15,6 +17,7 @@ public class Bus {
     private int totalSeats;
     private int availableSeats;
     private double fare;
+    private List<Seat> seats;
 
     // =========================
     // Default Constructor
@@ -43,6 +46,11 @@ public class Bus {
         this.totalSeats = totalSeats;
         this.availableSeats = availableSeats;
         this.fare = fare;
+        seats = new ArrayList<>();
+
+        for (int i = 1; i <= totalSeats; i++) {
+            seats.add(new Seat(i));
+        }
     }
     // =========================
     // Getters and Setters
@@ -126,6 +134,54 @@ public class Bus {
 
     public void setFare(double fare) {
         this.fare = fare;
+    }
+
+    public List<Seat> getSeats() {
+        return seats;
+    }
+
+    public boolean bookSeat(int seatNumber) {
+        Seat seat = getSeat(seatNumber);
+        if (seat == null) {
+            return false;
+        }
+        if (seat.isBooked()) {
+            return false;
+        }
+        seat.setBooked(true);
+        availableSeats--;
+        return true;
+    }
+
+    public boolean cancelSeat(int seatNumber) {
+        Seat seat = getSeat(seatNumber);
+        if (seat == null) {
+            return false;
+        }
+        if (!seat.isBooked()) {
+            return false;
+        }
+        seat.setBooked(false);
+        availableSeats++;
+        return true;
+    }
+
+    public void displaySeats() {
+        for (Seat seat : seats) {
+            System.out.printf("Seat %02d : %s%n",
+                    seat.getSeatNumber(),
+                    seat.isBooked() ? "BOOKED" : "AVAILABLE");
+        }
+    }
+
+
+    public Seat getSeat(int seatNumber) {
+        for (Seat seat : seats) {
+            if (seat.getSeatNumber() == seatNumber) {
+                return seat;
+            }
+        }
+        return null;
     }
 
     // =========================

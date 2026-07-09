@@ -1,6 +1,8 @@
 package service;
 
 import model.Bus;
+import model.Ticket;
+import repository.BookingRepository;
 import repository.BusRepository;
 
 import java.util.List;
@@ -8,9 +10,10 @@ import java.util.List;
 public class BusService {
 
     private final BusRepository busRepository;
-
+    private final BookingRepository bookingRepository;
     public BusService() {
         busRepository = new BusRepository();
+        bookingRepository = new BookingRepository();
     }
 
     public boolean addBus(Bus bus) {
@@ -46,5 +49,9 @@ public class BusService {
 
     public boolean updateFare(int busId, double fare) {
         return busRepository.updateFare(busId, fare);
+    }
+
+    public void saveTicket(Ticket ticket) {
+        bookingRepository.addTicket(ticket);
     }
 }

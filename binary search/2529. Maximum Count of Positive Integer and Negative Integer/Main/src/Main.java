@@ -17,7 +17,7 @@ class Solution {
         int left = 0, right = nums.length - 1, result = nums.length;
 
         while (left <= right) {
-            int mid = (left + right) / 2;
+            int mid = left + ((right-left)/2);
             if (nums[mid] < target) {
                 left = mid + 1;
             } else {

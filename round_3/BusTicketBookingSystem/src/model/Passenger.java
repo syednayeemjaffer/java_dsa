@@ -22,7 +22,7 @@ public class Passenger {
                      String email,
                      Address address) {
 
-        this.passengerId = IDGenerator.generatePassengerId();
+        this.passengerId = IDGenerator.generateTicketId();
 
         setName(name);
         setAge(age);

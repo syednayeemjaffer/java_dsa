@@ -1,9 +1,11 @@
 package app;
 
-import model.Bus;
+import model.*;
+import service.BookingService;
 import service.BusService;
-import model.Customer;
 import service.CustomerService;
+import util.IDGenerator;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,11 +14,13 @@ public class Application {
     private final Scanner scanner;
     private final BusService busService;
     private final CustomerService customerService;
+    private final BookingService bookingService;
 
     public Application() {
         scanner = new Scanner(System.in);
         busService = new BusService();
         customerService = new CustomerService();
+        bookingService = new BookingService();
     }
 
     public void start() {
@@ -149,7 +153,106 @@ public class Application {
         int id = scanner.nextInt();
         scanner.nextLine();
         Bus bus = busService.searchBus(id);
-        System.out.println(bus == null ? "Bus Not Found." : bus);
+        if (bus == null) {
+            System.out.println("Bus Not Found.");
+            return;
+        }
+        System.out.println(bus);
+        System.out.println();
+        bus.displaySeats();
+    }
+
+    private void bookTicket(Customer customer) {
+        System.out.println("\n========== BOOK TICKET ==========");
+
+        displayAllBuses();
+
+        System.out.print("\nEnter Bus ID : ");
+        int busId = scanner.nextInt();
+        scanner.nextLine();
+
+        Bus bus = busService.searchBus(busId);
+
+        if (bus == null) {
+            System.out.println("Bus Not Found.");
+            return;
+        }
+
+        selectSeat(customer, bus);
+    }
+
+    private void selectSeat(Customer customer, Bus bus) {
+        System.out.println("\n========== AVAILABLE SEATS ==========");
+        bus.displaySeats();
+
+        System.out.print("\nEnter Seat Number : ");
+        int seatNumber = scanner.nextInt();
+        scanner.nextLine();
+
+        Seat seat = bus.getSeat(seatNumber);
+
+        if (seat == null) {
+            System.out.println("Invalid Seat Number.");
+            return;
+        }
+
+        if (seat.isBooked()) {
+            System.out.println("Seat Already Booked.");
+            return;
+        }
+
+        enterPassengerDetails(customer, bus, seat);
+    }
+
+    private void enterPassengerDetails(Customer customer, Bus bus, Seat seat) {
+        System.out.println("\n========== PASSENGER DETAILS ==========");
+
+        System.out.print("Passenger Name : ");
+        String passengerName = scanner.nextLine();
+
+        System.out.print("Passenger Age : ");
+        int passengerAge = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Passenger Gender : ");
+        String passengerGender = scanner.nextLine();
+
+        System.out.print("Phone Number : ");
+        String phoneNumber = scanner.nextLine();
+
+        System.out.print("Email : ");
+        String email = scanner.nextLine();
+
+        Passenger passenger = new Passenger(
+                passengerName,
+                passengerAge,
+                passengerGender,
+                phoneNumber,
+                email,
+                null
+        );
+
+        if (!bus.bookSeat(seat.getSeatNumber())) {
+            System.out.println("Seat Booking Failed.");
+            return;
+        }
+
+        Ticket ticket = new Ticket(
+                IDGenerator.generateTicketId(),
+                customer,
+                passenger,
+                bus,
+                seat,
+                bus.getFare()
+        );
+
+        bookingService.bookTicket(ticket);
+
+        System.out.println();
+        System.out.println("================================");
+        System.out.println("BOOKING SUCCESSFUL");
+        System.out.println("================================");
+        System.out.println(ticket);
     }
 
     private void displayAllBuses() {
@@ -246,7 +349,10 @@ public class Application {
             System.out.println("1. View Profile");
             System.out.println("2. View All Buses");
             System.out.println("3. Search Bus");
-            System.out.println("4. Logout");
+            System.out.println("4. Book Ticket");
+            System.out.println("5. View My Bookings");
+            System.out.println("6. Cancel Ticket");
+            System.out.println("7. Logout");
             System.out.print("Enter Choice : ");
 
             int choice = scanner.nextInt();
@@ -263,10 +369,54 @@ public class Application {
                     searchBus();
                     break;
                 case 4:
+                    bookTicket(customer);
+                    break;
+                case 5:
+                    viewMyBookings(customer);
+                    break;
+                case 6:
+                    cancelTicket(customer);
+                    break;
+                case 7:
                     return;
-                default:
-                    System.out.println("Invalid Choice.");
             }
         }
+    }
+
+    private void viewMyBookings(Customer customer) {
+        List<Ticket> tickets = bookingService.getTicketsByCustomer(customer);
+
+        if (tickets.isEmpty()) {
+            System.out.println("No Bookings Found.");
+            return;
+        }
+
+        System.out.println("\n========== MY BOOKINGS ==========");
+
+        for (Ticket ticket : tickets) {
+            System.out.println(ticket);
+        }
+    }
+
+    private void cancelTicket(Customer customer) {
+        System.out.print("Enter Ticket ID : ");
+        int ticketId = scanner.nextInt();
+        scanner.nextLine();
+
+        Ticket ticket = bookingService.searchTicket(ticketId);
+
+        if (ticket == null) {
+            System.out.println("Ticket Not Found.");
+            return;
+        }
+
+        if (ticket.getCustomer().getUserId() != customer.getUserId()) {
+            System.out.println("You are not allowed to cancel this ticket.");
+            return;
+        }
+
+        ticket.getBus().cancelSeat(ticket.getSeat().getSeatNumber());
+        bookingService.cancelTicket(ticketId);
+        System.out.println("Ticket Cancelled Successfully.");
     }
 }
