@@ -1,42 +1,20 @@
 package repository;
 
 import model.Customer;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CustomerRepository {
+    private final Map<String, Customer> customerMap = new HashMap<>();
 
-    private final List<Customer> customers;
-
-    public CustomerRepository() {
-        customers = new ArrayList<>();
+    public void save(Customer customer) {
+        customerMap.put(customer.getId(), customer);
     }
 
-    public void addCustomer(Customer customer) {
-        customers.add(customer);
+    public Optional<Customer> findById(String id) {
+        return Optional.ofNullable(customerMap.get(id));
     }
 
-    public Customer findByUsername(String username) {
-        for (Customer customer : customers) {
-            if (customer.getUsername().equalsIgnoreCase(username)) {
-                return customer;
-            }
-        }
-        return null;
-    }
-
-    public Customer login(String username, String password) {
-        for (Customer customer : customers) {
-            if (customer.getUsername().equalsIgnoreCase(username)
-                    && customer.getPassword().equals(password)) {
-                return customer;
-            }
-        }
-        return null;
-    }
-
-    public List<Customer> getAllCustomers() {
-        return new ArrayList<>(customers);
+    public List<Customer> findAll() {
+        return new ArrayList<>(customerMap.values());
     }
 }

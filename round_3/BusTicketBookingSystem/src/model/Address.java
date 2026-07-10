@@ -1,77 +1,22 @@
 package model;
 
 public class Address {
-
-    private String doorNo;
     private String street;
     private String city;
-    private String state;
-    private String pincode;
+    private String zipCode;
 
-    public Address() {
-    }
-
-    public Address(String doorNo,
-                   String street,
-                   String city,
-                   String state,
-                   String pincode) {
-
-        this.doorNo = doorNo;
+    public Address(String street, String city, String zipCode) {
         this.street = street;
         this.city = city;
-        this.state = state;
-        this.pincode = pincode;
+        this.zipCode = zipCode;
     }
 
-    public String getDoorNo() {
-        return doorNo;
-    }
-
-    public void setDoorNo(String doorNo) {
-        this.doorNo = doorNo;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getPincode() {
-        return pincode;
-    }
-
-    public void setPincode(String pincode) {
-        this.pincode = pincode;
-    }
+    public String getStreet() { return street; }
+    public String getCity() { return city; }
+    public String getZipCode() { return zipCode; }
 
     @Override
     public String toString() {
-        return "Address{" +
-                "doorNo='" + doorNo + '\'' +
-                ", street='" + street + '\'' +
-                ", city='" + city + '\'' +
-                ", state='" + state + '\'' +
-                ", pincode='" + pincode + '\'' +
-                '}';
+        return street + ", " + city + " - " + zipCode;
     }
 }

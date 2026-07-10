@@ -1,206 +1,58 @@
 package model;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Bus {
-    // =========================
-    // Instance Variables
-    // =========================
-
-    private int busId;
+    private final String id;
     private String busNumber;
-    private String busName;
     private String source;
     private String destination;
-    private String departureTime;
-    private String arrivalTime;
+    private LocalDateTime departureDateTime;
     private int totalSeats;
-    private int availableSeats;
-    private double fare;
+    private double farePerSeat;
     private List<Seat> seats;
 
-    // =========================
-    // Default Constructor
-    // =========================
-
-    public Bus() {}
-
-    public Bus(int busId,
-               String busNumber,
-               String busName,
-               String source,
-               String destination,
-               String departureTime,
-               String arrivalTime,
-               int totalSeats,
-               int availableSeats,
-               double fare) {
-
-        this.busId = busId;
+    public Bus(String id, String busNumber, String source, String destination,
+               LocalDateTime departureDateTime, int totalSeats, double farePerSeat) {
+        this.id = id;
         this.busNumber = busNumber;
-        this.busName = busName;
         this.source = source;
         this.destination = destination;
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
+        this.departureDateTime = departureDateTime;
         this.totalSeats = totalSeats;
-        this.availableSeats = availableSeats;
-        this.fare = fare;
-        seats = new ArrayList<>();
-
+        this.farePerSeat = farePerSeat;
+        this.seats = new ArrayList<>();
         for (int i = 1; i <= totalSeats; i++) {
             seats.add(new Seat(i));
         }
     }
-    // =========================
-    // Getters and Setters
-    // =========================
 
-    public String getBusNumber() {
-        return busNumber;
+    public String getId() { return id; }
+    public String getBusNumber() { return busNumber; }
+    public String getSource() { return source; }
+    public String getDestination() { return destination; }
+    public LocalDateTime getDepartureDateTime() { return departureDateTime; }
+    public int getTotalSeats() { return totalSeats; }
+    public double getFarePerSeat() { return farePerSeat; }
+    public List<Seat> getSeats() { return seats; }
+
+    public List<Seat> getAvailableSeats() {
+        return seats.stream()
+                .filter(seat -> !seat.isBooked())
+                .collect(Collectors.toList());
     }
 
-    public void setBusNumber(String busNumber) {
-        this.busNumber = busNumber;
+    public int getAvailableSeatCount() {
+        return (int) seats.stream().filter(seat -> !seat.isBooked()).count();
     }
-
-    public int getBusId() {
-        return busId;
-    }
-
-    public void setBusId(int busId) {
-        this.busId = busId;
-    }
-
-    public String getBusName() {
-        return busName;
-    }
-
-    public void setBusName(String busName) {
-        this.busName = busName;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
-    public String getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(String departureTime) {
-        this.departureTime = departureTime;
-    }
-
-    public String getArrivalTime() {
-        return arrivalTime;
-    }
-
-    public void setArrivalTime(String arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
-    public int getTotalSeats() {
-        return totalSeats;
-    }
-
-    public void setTotalSeats(int totalSeats) {
-        this.totalSeats = totalSeats;
-    }
-
-    public int getAvailableSeats() {
-        return availableSeats;
-    }
-
-    public void setAvailableSeats(int availableSeats) {
-        this.availableSeats = availableSeats;
-    }
-
-    public double getFare() {
-        return fare;
-    }
-
-    public void setFare(double fare) {
-        this.fare = fare;
-    }
-
-    public List<Seat> getSeats() {
-        return seats;
-    }
-
-    public boolean bookSeat(int seatNumber) {
-        Seat seat = getSeat(seatNumber);
-        if (seat == null) {
-            return false;
-        }
-        if (seat.isBooked()) {
-            return false;
-        }
-        seat.setBooked(true);
-        availableSeats--;
-        return true;
-    }
-
-    public boolean cancelSeat(int seatNumber) {
-        Seat seat = getSeat(seatNumber);
-        if (seat == null) {
-            return false;
-        }
-        if (!seat.isBooked()) {
-            return false;
-        }
-        seat.setBooked(false);
-        availableSeats++;
-        return true;
-    }
-
-    public void displaySeats() {
-        for (Seat seat : seats) {
-            System.out.printf("Seat %02d : %s%n",
-                    seat.getSeatNumber(),
-                    seat.isBooked() ? "BOOKED" : "AVAILABLE");
-        }
-    }
-
-
-    public Seat getSeat(int seatNumber) {
-        for (Seat seat : seats) {
-            if (seat.getSeatNumber() == seatNumber) {
-                return seat;
-            }
-        }
-        return null;
-    }
-
-    // =========================
-    // toString()
-    // =========================
 
     @Override
     public String toString() {
-        return "Bus{" +
-                "busId=" + busId +
-                ", busNumber='" + busNumber + '\'' +
-                ", busName='" + busName + '\'' +
-                ", source='" + source + '\'' +
-                ", destination='" + destination + '\'' +
-                ", departureTime='" + departureTime + '\'' +
-                ", arrivalTime='" + arrivalTime + '\'' +
-                ", totalSeats=" + totalSeats +
-                ", availableSeats=" + availableSeats +
-                ", fare=" + fare +
-                '}';
+        return String.format("ID: %s | Bus No: %s | %s → %s | Departure: %s | Fare: ₹%.2f | Available: %d/%d",
+                id, busNumber, source, destination, departureDateTime, farePerSeat,
+                getAvailableSeatCount(), totalSeats);
     }
 }

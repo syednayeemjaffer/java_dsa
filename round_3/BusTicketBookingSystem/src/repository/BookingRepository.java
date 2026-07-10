@@ -1,52 +1,30 @@
 package repository;
 
-import model.Customer;
 import model.Ticket;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class BookingRepository {
+    private final Map<String, Ticket> ticketMap = new HashMap<>();
 
-    private final List<Ticket> tickets;
-
-    public BookingRepository() {
-        tickets = new ArrayList<>();
+    public void save(Ticket ticket) {
+        ticketMap.put(ticket.getTicketId(), ticket);
     }
 
-    public void addTicket(Ticket ticket) {
-        tickets.add(ticket);
+    public Optional<Ticket> findById(String ticketId) {
+        return Optional.ofNullable(ticketMap.get(ticketId));
     }
 
-    public List<Ticket> getAllTickets() {
-        return new ArrayList<>(tickets);
+    public List<Ticket> findAll() {
+        return new ArrayList<>(ticketMap.values());
     }
 
-    public Ticket findTicket(int ticketId) {
-        for (Ticket ticket : tickets) {
-            if (ticket.getTicketId() == ticketId) {
-                return ticket;
+    public List<Ticket> findByCustomerId(String customerId) {
+        List<Ticket> result = new ArrayList<>();
+        for (Ticket t : ticketMap.values()) {
+            if (t.getCustomerId().equals(customerId)) {
+                result.add(t);
             }
         }
-        return null;
-    }
-
-    public boolean removeTicket(int ticketId) {
-        Ticket ticket = findTicket(ticketId);
-        if (ticket == null) {
-            return false;
-        }
-        tickets.remove(ticket);
-        return true;
-    }
-
-    public List<Ticket> getTicketsByCustomer(Customer customer) {
-        List<Ticket> customerTickets = new ArrayList<>();
-        for (Ticket ticket : tickets) {
-            if (ticket.getCustomer().getUserId() == customer.getUserId()) {
-                customerTickets.add(ticket);
-            }
-        }
-        return customerTickets;
+        return result;
     }
 }

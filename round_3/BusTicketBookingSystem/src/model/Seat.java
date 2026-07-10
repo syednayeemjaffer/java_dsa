@@ -1,8 +1,7 @@
 package model;
 
 public class Seat {
-
-    private int seatNumber;
+    private final int seatNumber;
     private boolean booked;
 
     public Seat(int seatNumber) {
@@ -10,27 +9,12 @@ public class Seat {
         this.booked = false;
     }
 
-    public int getSeatNumber() {
-        return seatNumber;
-    }
-
-    public void setSeatNumber(int seatNumber) {
-        this.seatNumber = seatNumber;
-    }
-
-    public boolean isBooked() {
-        return booked;
-    }
-
-    public void setBooked(boolean booked) {
-        this.booked = booked;
-    }
+    public int getSeatNumber() { return seatNumber; }
+    public boolean isBooked() { return booked; }
+    public void setBooked(boolean booked) { this.booked = booked; }
 
     @Override
     public String toString() {
-        return "Seat{" +
-                "seatNumber=" + seatNumber +
-                ", booked=" + booked +
-                '}';
+        return "Seat " + seatNumber + (booked ? " [BOOKED]" : " [AVAILABLE]");
     }
 }

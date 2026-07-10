@@ -1,26 +1,29 @@
 package model;
 
-public class Customer extends User {
+public class Customer {
+    private final String id;
+    private String name;
+    private String phone;
+    private String email;
+    private Address address;
 
-    public Customer() {
+    public Customer(String id, String name, String phone, String email, Address address) {
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+        this.address = address;
     }
 
-    public Customer(int userId,
-                    String name,
-                    String phoneNumber,
-                    String email,
-                    String username,
-                    String password) {
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getPhone() { return phone; }
+    public String getEmail() { return email; }
+    public Address getAddress() { return address; }
 
-        super(userId,
-                name,
-                phoneNumber,
-                email,
-                username,
-                password);
-    }
-
-    public void showRole() {
-        System.out.println("Logged in as CUSTOMER");
+    @Override
+    public String toString() {
+        return String.format("ID: %s | Name: %s | Phone: %s | Email: %s",
+                id, name, phone, email);
     }
 }

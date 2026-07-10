@@ -1,57 +1,38 @@
 package service;
 
+import exception.BusNotFoundException;
 import model.Bus;
-import model.Ticket;
-import repository.BookingRepository;
 import repository.BusRepository;
+import util.IDGenerator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class BusService {
-
     private final BusRepository busRepository;
-    private final BookingRepository bookingRepository;
-    public BusService() {
-        busRepository = new BusRepository();
-        bookingRepository = new BookingRepository();
+
+    public BusService(BusRepository busRepository) {
+        this.busRepository = busRepository;
     }
 
-    public boolean addBus(Bus bus) {
-        if (busRepository.findBusByNumber(bus.getBusNumber()) != null) {
-            System.out.println("Bus Number already exists.");
-            return false;
-        }
-
-        if (bus.getFare() <= 0) {
-            System.out.println("Invalid Fare.");
-            return false;
-        }
-        if (bus.getTotalSeats() <= 0) {
-            System.out.println("Invalid Seat Count.");
-            return false;
-        }
-
-        busRepository.addBus(bus);
-        return true;
+    public Bus addBus(String busNumber, String source, String destination,
+                      LocalDateTime departure, int totalSeats, double fare) {
+        String id = IDGenerator.generateBusId();
+        Bus bus = new Bus(id, busNumber, source, destination, departure, totalSeats, fare);
+        busRepository.save(bus);
+        return bus;
     }
 
     public List<Bus> getAllBuses() {
-        return busRepository.getAllBuses();
+        return busRepository.findAll();
     }
 
-    public Bus searchBus(int busId) {
-        return busRepository.findBusById(busId);
+    public List<Bus> searchBuses(String source, String destination) {
+        return busRepository.searchByRoute(source, destination);
     }
 
-    public boolean deleteBus(int busId) {
-        return busRepository.deleteBus(busId);
-    }
-
-    public boolean updateFare(int busId, double fare) {
-        return busRepository.updateFare(busId, fare);
-    }
-
-    public void saveTicket(Ticket ticket) {
-        bookingRepository.addTicket(ticket);
+    public Bus getBusById(String busId) {
+        return busRepository.findById(busId)
+                .orElseThrow(() -> new BusNotFoundException("Bus with ID " + busId + " not found."));
     }
 }
