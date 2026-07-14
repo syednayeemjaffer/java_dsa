@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/34. Find First and Last Position of Element in Sorted Array.iml" filepath="$PROJECT_DIR$/.idea/34. Find First and Last Position of Element in Sorted Array.iml" />
       <module fileurl="file://$PROJECT_DIR$/Main/Main.iml" filepath="$PROJECT_DIR$/Main/Main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/Remove character(basic).iml" filepath="$PROJECT_DIR$/.idea/Remove character(basic).iml" />
     </modules>
   </component>
 </project>

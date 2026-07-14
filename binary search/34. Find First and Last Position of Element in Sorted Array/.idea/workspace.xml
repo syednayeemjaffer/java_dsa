@@ -4,17 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fdced556-90c5-4215-b931-a1ad4e849932" name="Changes" comment="" />
+    <list default="true" id="99722bb0-28cd-41ba-b225-b9b45b07a39d" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6,
-  &quot;fromUser&quot;: false
-}</component>
-  <component name="ProjectId" id="3FpzdnWoJIjUnQcFVPfyrOZ5mW9" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 0,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3GJdaGl1pgSwiKY2loIUEX1mF46" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -28,11 +28,11 @@
 }]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="fdced556-90c5-4215-b931-a1ad4e849932" name="Changes" comment="" />
-      <created>1782786891717</created>
+      <changelist id="99722bb0-28cd-41ba-b225-b9b45b07a39d" name="Changes" comment="" />
+      <created>1783693668135</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1782786891717</updated>
+      <updated>1783693668135</updated>
     </task>
     <servers />
   </component>
