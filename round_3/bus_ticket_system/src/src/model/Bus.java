@@ -1,15 +1,16 @@
 package model;
 
 public class Bus {
-    private int id;
+    private String id;
     private String busNo;
     private String busName;
     private String Source;
     private String Destination;
     private double fare;
     private int seat;
+    private static int totalBus;
 
-    public Bus(int id, String busNo, String busName, String source, String destination, double fare,int seat) {
+    public Bus(String id, String busNo, String busName, String source, String destination, double fare,int seat) {
         this.id = id;
         this.busNo = busNo;
         this.busName = busName;
@@ -17,9 +18,10 @@ public class Bus {
         Destination = destination;
         this.fare = fare;
         this.seat = seat;
+        totalBus++;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -47,6 +49,7 @@ public class Bus {
         return seat;
     }
 
+    public int getTotalBus(){return totalBus;}
     // tostring
 
     @Override

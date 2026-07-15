@@ -15,21 +15,25 @@ public class BusDatabase {
         busDB.add(bus);
         return true;
     }
-    public Bus getById(int id){
+    public Bus getById(String id){
         for (Bus bus : busDB) {
-            if (bus.getId() == id) {
+            if (bus.getId().equals(id)) {
                 return bus;
             }
         }
         return null;
     }
-    public Bus getBusByRoot(String sour,String dest){
-        for (Bus bus : busDB){
-            if(bus.getSource() == sour && bus.getDestination() == dest){
-                return bus;
+    public List<Bus> getBusByRoute(String source, String destination) {
+        List<Bus> buses = new ArrayList<>();
+
+        for (Bus bus : busDB) {
+            if (bus.getSource().equalsIgnoreCase(source)
+                    && bus.getDestination().equalsIgnoreCase(destination)) {
+                buses.add(bus);
             }
         }
-        return null;
+
+        return buses;
     }
     public List<Bus> getBusDB() {
         return busDB;
