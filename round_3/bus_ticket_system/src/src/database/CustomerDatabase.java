@@ -25,7 +25,7 @@ public class CustomerDatabase {
         }
         return null;
     }
-    public List<Customer> getBusDB() {
+    public List<Customer> getcusDB() {
         return cusDB;
     }
 

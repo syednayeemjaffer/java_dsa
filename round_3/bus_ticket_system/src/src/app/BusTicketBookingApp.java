@@ -17,8 +17,8 @@ public class BusTicketBookingApp {
     public  void start(){
         while (true){
             System.out.println("========== Welcome ==========");
-            System.out.println("1. View All Buses");
-            System.out.println("2. Register Customer");
+            System.out.println("1. Bus Service");
+            System.out.println("2. Customer Service");
 
             int choice;
             choice = s.nextInt();
