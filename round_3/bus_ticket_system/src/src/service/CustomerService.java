@@ -3,23 +3,25 @@ package service;
 import database.CustomerDatabase;
 import enums.Gender;
 import helper.IDGenerator;
+import helper.ScannerHelper;
 import model.Customer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Scanner;
 
 public class CustomerService {
-    Scanner s = new Scanner(System.in);
-    public Customer cus1 = new Customer(IDGenerator.generateID(),"Syed", Gender.MALE,22,9344242496L,"123@gmail.com");
-    public Customer cus2 = new Customer(IDGenerator.generateID(),"nasreen", Gender.FEMALE,21,9344242496L,"1234@gmail.com");
-    CustomerDatabase cusDB = new CustomerDatabase();
+    private final ScannerHelper s = new ScannerHelper();
+    private final CustomerDatabase cusDB = new CustomerDatabase();
 
-    public void customerService(){
-        cusDB.addBus(cus1);cusDB.addBus(cus2);
-        while (true){
-            System.out.println("===========CUSTOMER MANAGEMENT============\n");
+    public CustomerService() {
+        // Seed data
+        cusDB.addCustomer(new Customer(IDGenerator.generateID(), "Syed", Gender.MALE, 22, 9344242496L, "syed@gmail.com"));
+        cusDB.addCustomer(new Customer(IDGenerator.generateID(), "Nasreen", Gender.FEMALE, 21, 9344242497L, "nasreen@gmail.com"));
+    }
+
+    public void customerService() {
+        while (true) {
+            System.out.println("\n=========== CUSTOMER MANAGEMENT ===========");
             System.out.println("1. Register Customer");
             System.out.println("2. View All Customers");
             System.out.println("3. Search Customer by ID");
@@ -27,12 +29,11 @@ public class CustomerService {
             System.out.println("5. Update Customer");
             System.out.println("6. Delete Customer");
             System.out.println("7. Back");
-            int choice = s.nextInt();
-            s.nextLine();
 
-            switch (choice){
+            int choice = s.intValue("Enter your choice: ");
+            switch (choice) {
                 case 1:
-                    registerCus();
+                    registerCustomer();
                     break;
                 case 2:
                     viewCustomers();
@@ -41,129 +42,175 @@ public class CustomerService {
                     searchById();
                     break;
                 case 4:
-                    searchByPhno();
+                    searchByPhoneNo();
                     break;
                 case 5:
                     update();
                     break;
                 case 6:
+                    delete();
                     break;
                 case 7:
                     return;
                 default:
-                    System.out.println("Invalid choice");
-                    break;
-
+                    System.out.println("Invalid choice. Please try again.");
             }
         }
     }
 
-    private void registerCus(){
-        System.out.print("Name: ");
-        String name = s.nextLine();
-        System.out.print("Gender: ");
-        Gender gen = Gender.valueOf(s.nextLine().toUpperCase(Locale.ROOT));
-        System.out.print("Age: ");
-        int age = s.nextInt();
-        s.nextLine();
-        System.out.print("PhNo: ");
-        long phNo = s.nextLong();
-        s.nextLine();
-        System.out.print("Email: ");
-        String email = s.nextLine();
+    private void registerCustomer() {
+        String name = s.stringValue("Name: ");
+        Gender gender = readGender();
+        int age = s.intValue("Age: ");
+        long phNo = s.longValue("PhNo: ");
+        String email = s.stringValue("Email: ");
 
-        Customer cus = new Customer(IDGenerator.generateID(),name,gen,age,phNo,email);
-        registerUser(cus);
-    }
-    private void registerUser(Customer cus){
-        List<Customer> list = cusDB.getcusDB();
-        for (Customer c : list){
-            if(cus.getEmail() == c.getEmail()){
-                System.out.println("Email is already take..");
-            }
-        }
-        boolean result = cusDB.addBus(cus);
-        if (!result){
-            System.out.println("Error occur while registor");
-            new Error("Register failed");
+        if (cusDB.isEmailTaken(email)) {
+            System.out.println("This email is already registered.");
             return;
         }
-        System.out.println("Usered is now registered..");
+
+        Customer cus = new Customer(IDGenerator.generateID(), name, gender, age, phNo, email);
+        boolean result = cusDB.addCustomer(cus);
+
+        if (!result) {
+            System.out.println("Error occurred while registering the customer.");
+            return;
+        }
+        System.out.println("Customer registered successfully. ID: " + cus.getId());
     }
 
-    private void viewCustomers(){
-        List<Customer> list = cusDB.getcusDB();
-        System.out.println("=============================================");
-        System.out.printf("%-4s %-10s %-10s %-10s %-10s %-10s%n",
-                "Id","Name","Gender","Age","PhNo","Gmail");
-        for (Customer cus: list){
-            System.out.printf("%-4s %-10s %-10s %-10d %-10d %-10s%n",
-                    cus.getId(),
-                    cus.getName(),
-                    cus.getGender(),
-                    cus.getAge(),
-                    cus.getPhNo(),
-                    cus.getEmail(),"\n"
-            );
+    private Gender readGender() {
+        while (true) {
+            String input = s.stringValue("Gender (MALE/FEMALE/OTHER): ");
+            try {
+                return Gender.valueOf(input.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid gender. Please enter MALE, FEMALE, or OTHER.");
+            }
         }
     }
-    private void searchById(){
-        System.out.print("Enter the ID: ");
-        String str = s.nextLine();
-        Customer cus = searchCusById(str);
-        System.out.print("====================================== \n");
-        System.out.printf("%-4s %-10s %-10s %-10d %-10d %-10s%n",
+
+    private void viewCustomers() {
+        List<Customer> list = cusDB.getCusDB();
+
+        if (list.isEmpty()) {
+            System.out.println("No customers found.");
+            return;
+        }
+
+        printHeader();
+        for (Customer cus : list) {
+            printCustomerRow(cus);
+        }
+    }
+
+    private void searchById() {
+        String id = s.stringValue("Enter the ID: ");
+        Customer cus = cusDB.getById(id);
+
+        if (cus == null) {
+            System.out.println("Customer not found. Please enter a valid ID.");
+            return;
+        }
+
+        printHeader();
+        printCustomerRow(cus);
+    }
+
+    private void searchByPhoneNo() {
+        long phNo = s.longValue("Enter PhNo: ");
+        List<Customer> list = cusDB.getCusDB();
+
+        for (Customer cus : list) {
+            if (cus.getPhNo() == phNo) {
+                printHeader();
+                printCustomerRow(cus);
+                return;
+            }
+        }
+        System.out.println("Phone number not found.");
+    }
+
+    private void update() {
+        String id = s.stringValue("Enter ID: ");
+        Customer cus = cusDB.getById(id);
+
+        if (cus == null) {
+            System.out.println("Customer not found. Please enter a valid ID.");
+            return;
+        }
+
+        System.out.println("Leave a field blank to keep its current value.");
+
+        String name = s.stringValue("Name [" + cus.getName() + "]: ");
+        String genderInput = s.stringValue("Gender (MALE/FEMALE/OTHER) [" + cus.getGender() + "]: ");
+        String ageInput = s.stringValue("Age [" + cus.getAge() + "]: ");
+        String phNoInput = s.stringValue("Phone No [" + cus.getPhNo() + "]: ");
+        String email = s.stringValue("Email [" + cus.getEmail() + "]: ");
+
+        if (!name.isBlank()) {
+            cus.setName(name);
+        }
+
+        if (!genderInput.isBlank()) {
+            try {
+                cus.setGender(Gender.valueOf(genderInput.toUpperCase(Locale.ROOT)));
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid gender. Gender not updated.");
+            }
+        }
+
+        if (!ageInput.isBlank()) {
+            try {
+                cus.setAge(Integer.parseInt(ageInput));
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid age. Age not updated.");
+            }
+        }
+
+        if (!phNoInput.isBlank()) {
+            try {
+                cus.setPhNo(Long.parseLong(phNoInput));
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid phone number. Phone number not updated.");
+            }
+        }
+
+        if (!email.isBlank()) {
+            if (cusDB.isEmailTaken(email) && !email.equalsIgnoreCase(cus.getEmail())) {
+                System.out.println("This email is already registered. Email not updated.");
+            } else {
+                cus.setEmail(email);
+            }
+        }
+
+        System.out.println("Customer updated successfully.");
+    }
+
+    private void delete() {
+        String id = s.stringValue("Enter ID: ");
+        if (cusDB.deleteCustomer(id)) {
+            System.out.println("Customer deleted successfully.");
+        } else {
+            System.out.println("Customer not found. Please enter a valid ID.");
+        }
+    }
+
+    private void printHeader() {
+        System.out.println("=============================================");
+        System.out.printf("%-8s %-10s %-8s %-5s %-12s %-20s%n",
+                "Id", "Name", "Gender", "Age", "PhNo", "Email");
+        System.out.println("=============================================");
+    }
+
+    private void printCustomerRow(Customer cus) {
+        System.out.printf("%-8s %-10s %-8s %-5d %-12d %-20s%n",
                 cus.getId(),
                 cus.getName(),
                 cus.getGender(),
                 cus.getAge(),
                 cus.getPhNo(),
-                cus.getEmail()
-        );
+                cus.getEmail());
     }
-    private Customer searchCusById(String str){
-        return cusDB.getById(str);
-    }
-
-    private void searchByPhno(){
-        System.out.print("Enter phno: ");
-        long phno = s.nextLong();
-        searchCusByPhno(phno);
-    }
-    private void searchCusByPhno(long phno){
-        List<Customer> list = cusDB.getcusDB();
-        for (Customer cus : list){
-            if(cus.getPhNo() == phno){
-                System.out.println("=============================================");
-                System.out.printf("%-4s %-10s %-10s %-10s %-10s %-10s%n",
-                        "Id","Name","Gender","Age","PhNo","Gmail");
-                System.out.printf("%-4s %-10s %-10s %-10d %-10d %-10s%n",
-                        cus.getId(),
-                        cus.getName(),
-                        cus.getGender(),
-                        cus.getAge(),
-                        cus.getPhNo(),
-                        cus.getEmail(),"\n"
-                );
-                return;
-            }
-        }
-        System.out.println("Phno is not found...");
-    }
-    private void update(){
-        System
-        System.out.print("Name: ");
-        String name = s.nextLine();
-        System.out.print("Gender: ");
-        Gender gen = Gender.valueOf(s.nextLine().toUpperCase(Locale.ROOT));
-        System.out.print("Age: ");
-        int age = s.nextInt();
-        s.nextLine();
-        System.out.print("PhNo: ");
-        long phNo = s.nextLong();
-        s.nextLine();
-        System.out.print("Email: ");
-        String email = s.nextLine();
-    }
-
 }

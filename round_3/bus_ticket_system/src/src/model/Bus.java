@@ -1,21 +1,21 @@
 package model;
 
 public class Bus {
-    private String id;
-    private String busNo;
-    private String busName;
-    private String Source;
-    private String Destination;
-    private double fare;
-    private int seat;
+    private final String id;
+    private final String busNo;
+    private final String busName;
+    private final String source;
+    private final String destination;
+    private final double fare;
+    private final int seat;
     private static int totalBus;
 
-    public Bus(String id, String busNo, String busName, String source, String destination, double fare,int seat) {
+    public Bus(String id, String busNo, String busName, String source, String destination, double fare, int seat) {
         this.id = id;
         this.busNo = busNo;
         this.busName = busName;
-        Source = source;
-        Destination = destination;
+        this.source = source;
+        this.destination = destination;
         this.fare = fare;
         this.seat = seat;
         totalBus++;
@@ -34,11 +34,11 @@ public class Bus {
     }
 
     public String getSource() {
-        return Source;
+        return source;
     }
 
     public String getDestination() {
-        return Destination;
+        return destination;
     }
 
     public double getFare() {
@@ -49,18 +49,20 @@ public class Bus {
         return seat;
     }
 
-    public int getTotalBus(){return totalBus;}
-    // tostring
+    public static int getTotalBus() {
+        return totalBus;
+    }
 
     @Override
     public String toString() {
         return "Bus{" +
-                "id=" + id +
-                ", busNo=" + busNo +
+                "id='" + id + '\'' +
+                ", busNo='" + busNo + '\'' +
                 ", busName='" + busName + '\'' +
-                ", Source='" + Source + '\'' +
-                ", Destination='" + Destination + '\'' +
+                ", source='" + source + '\'' +
+                ", destination='" + destination + '\'' +
                 ", fare=" + fare +
+                ", seat=" + seat +
                 '}';
     }
 }

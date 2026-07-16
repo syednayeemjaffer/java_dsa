@@ -3,7 +3,7 @@ package model;
 import enums.Gender;
 
 public class User {
-    private String id;
+    private final String id;
     private String name;
     private Gender gender;
     private int age;
@@ -27,20 +27,40 @@ public class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Gender getGender() {
         return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
     public int getAge() {
         return age;
     }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
+
     public long getPhNo() {
         return phNo;
     }
 
+    public void setPhNo(long phNo) {
+        this.phNo = phNo;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
@@ -49,7 +69,7 @@ public class User {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", gender=" + gender +
-                ", age='" + age + '\'' +
+                ", age=" + age +
                 ", phNo=" + phNo +
                 ", email='" + email + '\'' +
                 '}';
