@@ -101,7 +101,7 @@ public class BusService {
                 bus.getSource(),
                 bus.getDestination(),
                 bus.getFare(),
-                bus.getSeat());
+                bus.getSeat().getTotalSeat());
     }
 
     private void printBusDetails(Bus bus) {
@@ -112,6 +112,6 @@ public class BusService {
         System.out.println("Source      : " + bus.getSource());
         System.out.println("Destination : " + bus.getDestination());
         System.out.println("Fare        : " + bus.getFare());
-        System.out.println("Seats       : " + bus.getSeat());
+        System.out.println("Total Seats       : " + bus.getSeat().getTotalSeat());
     }
 }

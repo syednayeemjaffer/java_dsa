@@ -7,9 +7,8 @@ public class Bus {
     private final String source;
     private final String destination;
     private final double fare;
-    private final int seat;
+    private final Seat seat;
     private static int totalBus;
-
     public Bus(String id, String busNo, String busName, String source, String destination, double fare, int seat) {
         this.id = id;
         this.busNo = busNo;
@@ -17,7 +16,7 @@ public class Bus {
         this.source = source;
         this.destination = destination;
         this.fare = fare;
-        this.seat = seat;
+        this.seat = new Seat(seat);
         totalBus++;
     }
 
@@ -45,7 +44,7 @@ public class Bus {
         return fare;
     }
 
-    public int getSeat() {
+    public Seat getSeat() {
         return seat;
     }
 
@@ -62,7 +61,8 @@ public class Bus {
                 ", source='" + source + '\'' +
                 ", destination='" + destination + '\'' +
                 ", fare=" + fare +
-                ", seat=" + seat +
+                ", seat=" + seat.getTotalSeat() +
+                ", seatAvailable=" + seat.getAvailableSeat() +
                 '}';
     }
 }

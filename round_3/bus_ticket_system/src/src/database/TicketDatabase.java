@@ -9,11 +9,11 @@ import java.util.List;
 public class TicketDatabase {
     List<Ticket> tickDB = new ArrayList<>();
 
-    public boolean addTicket(Ticket customer) {
-        if (customer == null) {
+    public boolean addTicket(Ticket ticket) {
+        if (ticket == null) {
             return false;
         }
-        return tickDB.add(customer);
+        return tickDB.add(ticket);
     }
 
     public Ticket getById(String id) {
