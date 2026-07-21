@@ -10,6 +10,7 @@ import model.Bus;
 import model.Customer;
 import service.BusService;
 import service.CustomerService;
+import service.ReportService;
 import service.TicketService;
 
 public class BusTicketBookingApp {
@@ -23,6 +24,7 @@ public class BusTicketBookingApp {
     private final BusService busService = new BusService(busDatabase);
     private final CustomerService cusService = new CustomerService(customerDatabase, ticketDatabase);
     private final TicketService ticketService = new TicketService(ticketDatabase, customerDatabase, busDatabase);
+    private final ReportService reportService = new ReportService(ticketDatabase,busDatabase,customerDatabase);
 
     public BusTicketBookingApp() {
         seedData();
@@ -42,7 +44,8 @@ public class BusTicketBookingApp {
             System.out.println("1. Bus Service");
             System.out.println("2. Customer Service");
             System.out.println("3. Ticket Booking Service");
-            System.out.println("4. Exit");
+            System.out.println("4. Reports & Analytics");
+            System.out.println("5. Exit");
 
             int choice = s.intValue("Enter your choice: ");
             switch (choice) {
@@ -56,6 +59,9 @@ public class BusTicketBookingApp {
                     ticketService.ticketService();
                     break;
                 case 4:
+                    reportService.reportService();
+                    break;
+                case 5:
                     System.out.println("Thank you for using Bus Ticket Booking System. Goodbye!");
                     return;
                 default:
