@@ -5,7 +5,7 @@ import java.util.Arrays;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        int arr [] = {4,3,2,5};
+        int arr [] = {4,6,2,1,7,3};
         MergeSort.mergesort(arr,0,arr.length);
         System.out.println(Arrays.toString(arr));
     }
@@ -13,7 +13,7 @@ public class Main {
 
 class MergeSort {
     public static void mergesort(int[]arr,int left,int rigth){
-        if(rigth-left == 1){
+        if(rigth-left <= 1){
             return;
         }
         int mid = (left+rigth)/2;

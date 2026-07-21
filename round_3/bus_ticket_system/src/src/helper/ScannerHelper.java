@@ -14,8 +14,7 @@ public class ScannerHelper {
         while (true) {
             try {
                 System.out.print(msg);
-                int val = Integer.parseInt(s.nextLine().trim());
-                return val;
+                return Integer.parseInt(s.nextLine().trim());
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number. Please try again.");
             }
@@ -37,4 +36,5 @@ public class ScannerHelper {
         System.out.print(msg);
         return s.nextLine().trim();
     }
+
 }

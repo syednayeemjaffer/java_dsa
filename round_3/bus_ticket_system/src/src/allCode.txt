@@ -1,0 +1,1269 @@
+
+============================================================
+FILE: src/Main.java
+============================================================
+
+import app.BusTicketBookingApp;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            BusTicketBookingApp app = new BusTicketBookingApp();
+            app.start();
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+}
+
+
+============================================================
+FILE: src/app/BusTicketBookingApp.java
+============================================================
+
+package app;
+
+import database.BusDatabase;
+import database.CustomerDatabase;
+import database.TicketDatabase;
+import enums.Gender;
+import helper.IDGenerator;
+import helper.ScannerHelper;
+import model.Bus;
+import model.Customer;
+import service.BusService;
+import service.CustomerService;
+import service.TicketService;
+
+public class BusTicketBookingApp {
+    private final ScannerHelper s = new ScannerHelper();
+
+    // Single shared database instances, injected into every service that needs them.
+    private final BusDatabase busDatabase = new BusDatabase();
+    private final CustomerDatabase customerDatabase = new CustomerDatabase();
+    private final TicketDatabase ticketDatabase = new TicketDatabase();
+
+    private final BusService busService = new BusService(busDatabase);
+    private final CustomerService cusService = new CustomerService(customerDatabase, ticketDatabase);
+    private final TicketService ticketService = new TicketService(ticketDatabase, customerDatabase, busDatabase);
+
+    public BusTicketBookingApp() {
+        seedData();
+    }
+
+    private void seedData() {
+        busDatabase.addBus(new Bus(IDGenerator.generateID(), "TN01", "Express", "Madurai", "Chennai", 500, 40));
+        busDatabase.addBus(new Bus(IDGenerator.generateID(), "TN02", "Bava Travels", "Madurai", "Ooty", 300, 50));
+
+        customerDatabase.addCustomer(new Customer(IDGenerator.generateID(), "Syed", Gender.MALE, 22, 9344242496L, "syed@gmail.com"));
+        customerDatabase.addCustomer(new Customer(IDGenerator.generateID(), "Nasreen", Gender.FEMALE, 21, 9344242497L, "nasreen@gmail.com"));
+    }
+
+    public void start() {
+        while (true) {
+            System.out.println("\n========== WELCOME ==========");
+            System.out.println("1. Bus Service");
+            System.out.println("2. Customer Service");
+            System.out.println("3. Ticket Booking Service");
+            System.out.println("4. Exit");
+
+            int choice = s.intValue("Enter your choice: ");
+            switch (choice) {
+                case 1:
+                    busService.busService();
+                    break;
+                case 2:
+                    cusService.customerService();
+                    break;
+                case 3:
+                    ticketService.ticketService();
+                    break;
+                case 4:
+                    System.out.println("Thank you for using Bus Ticket Booking System. Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
+
+
+============================================================
+FILE: src/database/BusDatabase.java
+============================================================
+
+package database;
+
+import model.Bus;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BusDatabase {
+    private final List<Bus> busDB = new ArrayList<>();
+
+    public boolean addBus(Bus bus) {
+        if (bus == null) {
+            return false;
+        }
+        return busDB.add(bus);
+    }
+
+    public Bus getById(String id) {
+        if (id == null) {
+            return null;
+        }
+        for (Bus bus : busDB) {
+            if (bus.getId().equals(id)) {
+                return bus;
+            }
+        }
+        return null;
+    }
+
+    public List<Bus> getBusByRoute(String source, String destination) {
+        List<Bus> buses = new ArrayList<>();
+        for (Bus bus : busDB) {
+            if (bus.getSource().equalsIgnoreCase(source)
+                    && bus.getDestination().equalsIgnoreCase(destination)) {
+                buses.add(bus);
+            }
+        }
+        return buses;
+    }
+
+    public List<Bus> getBusDB() {
+        return new ArrayList<>(busDB);
+    }
+}
+
+
+============================================================
+FILE: src/database/CustomerDatabase.java
+============================================================
+
+package database;
+
+import model.Customer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CustomerDatabase {
+    private final List<Customer> cusDB = new ArrayList<>();
+
+    public boolean addCustomer(Customer customer) {
+        if (customer == null) {
+            return false;
+        }
+        return cusDB.add(customer);
+    }
+
+    public Customer getById(String id) {
+        if (id == null) {
+            return null;
+        }
+        for (Customer cus : cusDB) {
+            if (cus.getId().equals(id)) {
+                return cus;
+            }
+        }
+        return null;
+    }
+
+    public boolean isEmailTaken(String email) {
+        if (email == null) {
+            return false;
+        }
+        for (Customer cus : cusDB) {
+            if (cus.getEmail().equalsIgnoreCase(email)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean deleteCustomer(String id) {
+        Customer cus = getById(id);
+        if (cus == null) {
+            return false;
+        }
+        return cusDB.remove(cus);
+    }
+
+    public List<Customer> getCusDB() {
+        return new ArrayList<>(cusDB);
+    }
+}
+
+
+============================================================
+FILE: src/database/TicketDatabase.java
+============================================================
+
+package database;
+
+import model.Ticket;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TicketDatabase {
+    private final List<Ticket> tickDB = new ArrayList<>();
+
+    public boolean addTicket(Ticket ticket) {
+        if (ticket == null) {
+            return false;
+        }
+        return tickDB.add(ticket);
+    }
+
+    public Ticket getById(String id) {
+        if (id == null) {
+            return null;
+        }
+        for (Ticket tic : tickDB) {
+            if (tic.getTicketId().equals(id)) {
+                return tic;
+            }
+        }
+        return null;
+    }
+
+    public List<Ticket> getByCusId(String cusId) {
+        List<Ticket> list = new ArrayList<>();
+        if (cusId == null) {
+            return list;
+        }
+        for (Ticket tic : tickDB) {
+            if (tic.getCusBooked().getId().equals(cusId)) {
+                list.add(tic);
+            }
+        }
+        return list;
+    }
+
+    public List<Ticket> getTickDB() {
+        return new ArrayList<>(tickDB);
+    }
+
+    public boolean deleteTicketById(String id) {
+        Ticket ticket = getById(id);
+        if (ticket == null) {
+            return false;
+        }
+        return tickDB.remove(ticket);
+    }
+}
+
+
+============================================================
+FILE: src/enums/Gender.java
+============================================================
+
+package enums;
+
+public enum Gender {
+    MALE, FEMALE, OTHER
+}
+
+
+============================================================
+FILE: src/helper/IDGenerator.java
+============================================================
+
+package helper;
+
+import java.util.UUID;
+
+public final class IDGenerator {
+
+    private IDGenerator() {
+        // prevent instantiation
+    }
+
+    public static String generateID() {
+        return UUID.randomUUID().toString().substring(0, 6);
+    }
+}
+
+
+============================================================
+FILE: src/helper/ScannerHelper.java
+============================================================
+
+package helper;
+
+import java.util.Scanner;
+
+/**
+ * Wraps java.util.Scanner and validates input so a bad entry
+ * (e.g. letters where a number is expected) does not crash the app.
+ */
+public class ScannerHelper {
+
+    private final Scanner s = new Scanner(System.in);
+
+    public int intValue(String msg) {
+        while (true) {
+            try {
+                System.out.print(msg);
+                return Integer.parseInt(s.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please try again.");
+            }
+        }
+    }
+
+    public long longValue(String msg) {
+        while (true) {
+            try {
+                System.out.print(msg);
+                return Long.parseLong(s.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please try again.");
+            }
+        }
+    }
+
+    public String stringValue(String msg) {
+        System.out.print(msg);
+        return s.nextLine().trim();
+    }
+}
+
+
+============================================================
+FILE: src/helper/TicketPrinter.java
+============================================================
+
+package helper;
+
+import model.Ticket;
+
+import java.time.format.DateTimeFormatter;
+
+/**
+ * Formats and prints ticket details. Extracted here because the same
+ * display logic was previously duplicated in both CustomerService and
+ * TicketService.
+ */
+public final class TicketPrinter {
+
+    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy | hh:mm a");
+
+    private TicketPrinter() {
+        // prevent instantiation
+    }
+
+    public static void print(Ticket ticket) {
+        if (ticket == null) {
+            return;
+        }
+        System.out.println("=================================================================");
+        System.out.println("Ticket ID          : " + ticket.getTicketId());
+        System.out.println("Booked Date & Time : " + ticket.getBookedDate().format(FORMAT));
+        System.out.println("Customer           : " + ticket.getCusBooked().getName());
+        System.out.println("Bus                : " + ticket.getBusBooked().getBusName());
+        System.out.println("Passengers         : " + ticket.getPassengerCount());
+        System.out.println("Seats              : " + ticket.getSeatBookedNo());
+        System.out.printf("Total Fare         : %.2f%n", ticket.getTotalFare());
+        System.out.println("=================================================================");
+    }
+}
+
+
+============================================================
+FILE: src/model/Bus.java
+============================================================
+
+package model;
+
+public class Bus {
+    private final String id;
+    private final String busNo;
+    private final String busName;
+    private final String source;
+    private final String destination;
+    private final double fare;
+    private final Seat seat;
+    private static int totalBus;
+
+    public Bus(String id, String busNo, String busName, String source, String destination, double fare, int seat) {
+        this.id = id;
+        this.busNo = busNo;
+        this.busName = busName;
+        this.source = source;
+        this.destination = destination;
+        this.fare = fare;
+        this.seat = new Seat(seat);
+        totalBus++;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getBusNo() {
+        return busNo;
+    }
+
+    public String getBusName() {
+        return busName;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public double getFare() {
+        return fare;
+    }
+
+    public Seat getSeat() {
+        return seat;
+    }
+
+    public static int getTotalBus() {
+        return totalBus;
+    }
+
+    @Override
+    public String toString() {
+        return "Bus{" +
+                "id='" + id + '\'' +
+                ", busNo='" + busNo + '\'' +
+                ", busName='" + busName + '\'' +
+                ", source='" + source + '\'' +
+                ", destination='" + destination + '\'' +
+                ", fare=" + fare +
+                ", totalSeats=" + seat.getTotalSeat() +
+                ", availableSeats=" + seat.getAvailableSeat() +
+                '}';
+    }
+}
+
+
+============================================================
+FILE: src/model/Customer.java
+============================================================
+
+package model;
+
+import enums.Gender;
+
+public class Customer extends User {
+    public Customer(String id, String name, Gender gender, int age, long phNo, String email) {
+        super(id, name, gender, age, phNo, email);
+    }
+}
+
+
+============================================================
+FILE: src/model/Seat.java
+============================================================
+
+package model;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Seat {
+    private final int totalSeat;
+    private int availableSeat;
+    private final Map<Integer, Customer> seatStatus;
+
+    public Seat(int totalSeat) {
+        this.totalSeat = totalSeat;
+        this.availableSeat = totalSeat;
+        this.seatStatus = new HashMap<>();
+        for (int i = 1; i <= totalSeat; i++) {
+            seatStatus.put(i, null);
+        }
+    }
+
+    public boolean isValidSeatNo(int num) {
+        return num >= 1 && num <= totalSeat;
+    }
+
+    public boolean seatBooking(Customer cus, int num) {
+        if (!isValidSeatNo(num) || seatStatus.get(num) != null) {
+            return false;
+        }
+        seatStatus.put(num, cus);
+        availableSeat--;
+        return true;
+    }
+
+    public boolean seatDelete(Customer cus, int num) {
+        if (!isValidSeatNo(num) || seatStatus.get(num) != cus) {
+            return false;
+        }
+        seatStatus.put(num, null);
+        availableSeat++;
+        return true;
+    }
+
+    public int getTotalSeat() {
+        return totalSeat;
+    }
+
+    public Map<Integer, Customer> getAllSeatStatus() {
+        return new HashMap<>(seatStatus);
+    }
+
+    public boolean getSeatBookedStatus(int seat) {
+        return isValidSeatNo(seat) && seatStatus.get(seat) != null;
+    }
+
+    public int getAvailableSeat() {
+        return availableSeat;
+    }
+}
+
+
+============================================================
+FILE: src/model/Ticket.java
+============================================================
+
+package model;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Ticket {
+    private final String ticketId;
+    private final Customer cusBooked;
+    private final Bus busBooked;
+    private final LocalDateTime bookedDate;
+    private final List<Integer> bookedSeatNo;
+    private final int passengerCount;
+    private final double totalFare;
+
+    public Ticket(String ticketId, Customer cusBooked, Bus busBooked, List<Integer> bookedSeatNo,
+                  int passengerCount, double totalFare) {
+        this.ticketId = ticketId;
+        this.cusBooked = cusBooked;
+        this.busBooked = busBooked;
+        this.bookedDate = LocalDateTime.now();
+        this.bookedSeatNo = new ArrayList<>(bookedSeatNo);
+        this.passengerCount = passengerCount;
+        this.totalFare = totalFare;
+    }
+
+    public String getTicketId() {
+        return ticketId;
+    }
+
+    public double getTotalFare() {
+        return totalFare;
+    }
+
+    public int getPassengerCount() {
+        return passengerCount;
+    }
+
+    public LocalDateTime getBookedDate() {
+        return bookedDate;
+    }
+
+    public Bus getBusBooked() {
+        return busBooked;
+    }
+
+    public Customer getCusBooked() {
+        return cusBooked;
+    }
+
+    public String getSeatBookedNo() {
+        return bookedSeatNo.toString();
+    }
+
+    public List<Integer> getSeatBookedNoRaw() {
+        return new ArrayList<>(bookedSeatNo);
+    }
+}
+
+
+============================================================
+FILE: src/model/User.java
+============================================================
+
+package model;
+
+import enums.Gender;
+
+public class User {
+    private final String id;
+    private String name;
+    private Gender gender;
+    private int age;
+    private long phNo;
+    private String email;
+
+    public User(String id, String name, Gender gender, int age, long phNo, String email) {
+        this.id = id;
+        this.name = name;
+        this.gender = gender;
+        this.age = age;
+        this.phNo = phNo;
+        this.email = email;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public long getPhNo() {
+        return phNo;
+    }
+
+    public void setPhNo(long phNo) {
+        this.phNo = phNo;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", gender=" + gender +
+                ", age=" + age +
+                ", phNo=" + phNo +
+                ", email='" + email + '\'' +
+                '}';
+    }
+}
+
+
+============================================================
+FILE: src/service/BusService.java
+============================================================
+
+package service;
+
+import database.BusDatabase;
+import helper.ScannerHelper;
+import model.Bus;
+
+import java.util.List;
+
+public class BusService {
+    private final ScannerHelper s = new ScannerHelper();
+    private final BusDatabase busDatabase;
+
+    public BusService(BusDatabase busDatabase) {
+        this.busDatabase = busDatabase;
+    }
+
+    public void busService() {
+        while (true) {
+            System.out.println("\n========== BUS TICKET BOOKING ==========");
+            System.out.println("1. View All Buses");
+            System.out.println("2. Search Bus by ID");
+            System.out.println("3. Search Bus by Route");
+            System.out.println("4. Back");
+
+            int choice = s.intValue("Enter your choice: ");
+            switch (choice) {
+                case 1:
+                    viewAllBuses();
+                    break;
+                case 2:
+                    searchBus();
+                    break;
+                case 3:
+                    searchByRoute();
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void viewAllBuses() {
+        List<Bus> buses = busDatabase.getBusDB();
+
+        if (buses.isEmpty()) {
+            System.out.println("No buses available.");
+            return;
+        }
+
+        System.out.println("Total buses: " + Bus.getTotalBus());
+        printHeader();
+        for (Bus bus : buses) {
+            printBusRow(bus);
+        }
+    }
+
+    private void searchBus() {
+        String id = s.stringValue("Enter Bus ID: ");
+        Bus bus = busDatabase.getById(id);
+
+        if (bus == null) {
+            System.out.println("Bus not found. Please enter a valid Bus ID.");
+            return;
+        }
+
+        printBusDetails(bus);
+    }
+
+    private void searchByRoute() {
+        String source = s.stringValue("Source: ");
+        String destination = s.stringValue("Destination: ");
+
+        List<Bus> buses = busDatabase.getBusByRoute(source, destination);
+        if (buses.isEmpty()) {
+            System.out.println("No bus available for this route.");
+            return;
+        }
+
+        for (Bus bus : buses) {
+            printBusDetails(bus);
+        }
+    }
+
+    private void printHeader() {
+        System.out.println("----------------------------------------------------------------------------");
+        System.out.printf("%-8s %-10s %-15s %-12s %-15s %-8s %-6s %-10s%n",
+                "ID", "Bus No", "Name", "Source", "Destination", "Fare", "Seats", "Available");
+        System.out.println("----------------------------------------------------------------------------");
+    }
+
+    private void printBusRow(Bus bus) {
+        System.out.printf("%-8s %-10s %-15s %-12s %-15s %-8.2f %-6d %-10d%n",
+                bus.getId(),
+                bus.getBusNo(),
+                bus.getBusName(),
+                bus.getSource(),
+                bus.getDestination(),
+                bus.getFare(),
+                bus.getSeat().getTotalSeat(),
+                bus.getSeat().getAvailableSeat());
+    }
+
+    private void printBusDetails(Bus bus) {
+        System.out.println("\n========== BUS DETAILS ==========");
+        System.out.println("Bus ID          : " + bus.getId());
+        System.out.println("Bus Number      : " + bus.getBusNo());
+        System.out.println("Bus Name        : " + bus.getBusName());
+        System.out.println("Source          : " + bus.getSource());
+        System.out.println("Destination     : " + bus.getDestination());
+        System.out.println("Fare            : " + bus.getFare());
+        System.out.println("Total Seats     : " + bus.getSeat().getTotalSeat());
+        System.out.println("Available Seats : " + bus.getSeat().getAvailableSeat());
+    }
+}
+
+
+============================================================
+FILE: src/service/CustomerService.java
+============================================================
+
+package service;
+
+import database.CustomerDatabase;
+import database.TicketDatabase;
+import enums.Gender;
+import helper.IDGenerator;
+import helper.ScannerHelper;
+import helper.TicketPrinter;
+import model.Customer;
+import model.Ticket;
+
+import java.util.List;
+import java.util.Locale;
+
+public class CustomerService {
+    private final ScannerHelper s = new ScannerHelper();
+    private final CustomerDatabase cusDB;
+    private final TicketDatabase tickDB;
+
+    public CustomerService(CustomerDatabase cusDB, TicketDatabase tickDB) {
+        this.cusDB = cusDB;
+        this.tickDB = tickDB;
+    }
+
+    public void customerService() {
+        while (true) {
+            System.out.println("\n=========== CUSTOMER MANAGEMENT ===========");
+            System.out.println("1. Register Customer");
+            System.out.println("2. View All Customers");
+            System.out.println("3. Search Customer by ID");
+            System.out.println("4. Search Customer by Mobile");
+            System.out.println("5. Update Customer");
+            System.out.println("6. Delete Customer");
+            System.out.println("7. View Tickets Booked by Customer");
+            System.out.println("8. Back");
+
+            int choice = s.intValue("Enter your choice: ");
+            switch (choice) {
+                case 1:
+                    registerCustomer();
+                    break;
+                case 2:
+                    viewCustomers();
+                    break;
+                case 3:
+                    searchById();
+                    break;
+                case 4:
+                    searchByPhoneNo();
+                    break;
+                case 5:
+                    update();
+                    break;
+                case 6:
+                    delete();
+                    break;
+                case 7:
+                    ticketBookedByCustomer();
+                    break;
+                case 8:
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void registerCustomer() {
+        String name = s.stringValue("Name: ");
+        Gender gender = readGender();
+        int age = s.intValue("Age: ");
+        long phNo = s.longValue("PhNo: ");
+        String email = s.stringValue("Email: ");
+
+        if (cusDB.isEmailTaken(email)) {
+            System.out.println("This email is already registered.");
+            return;
+        }
+
+        Customer cus = new Customer(IDGenerator.generateID(), name, gender, age, phNo, email);
+        boolean result = cusDB.addCustomer(cus);
+
+        if (!result) {
+            System.out.println("Error occurred while registering the customer.");
+            return;
+        }
+        System.out.println("Customer registered successfully. ID: " + cus.getId());
+    }
+
+    private Gender readGender() {
+        while (true) {
+            String input = s.stringValue("Gender (MALE/FEMALE/OTHER): ");
+            try {
+                return Gender.valueOf(input.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid gender. Please enter MALE, FEMALE, or OTHER.");
+            }
+        }
+    }
+
+    private void viewCustomers() {
+        List<Customer> list = cusDB.getCusDB();
+
+        if (list.isEmpty()) {
+            System.out.println("No customers found.");
+            return;
+        }
+
+        printHeader();
+        for (Customer cus : list) {
+            printCustomerRow(cus);
+        }
+    }
+
+    private void searchById() {
+        String id = s.stringValue("Enter the ID: ");
+        Customer cus = cusDB.getById(id);
+
+        if (cus == null) {
+            System.out.println("Customer not found. Please enter a valid ID.");
+            return;
+        }
+
+        printHeader();
+        printCustomerRow(cus);
+    }
+
+    private void searchByPhoneNo() {
+        long phNo = s.longValue("Enter PhNo: ");
+        List<Customer> list = cusDB.getCusDB();
+
+        for (Customer cus : list) {
+            if (cus.getPhNo() == phNo) {
+                printHeader();
+                printCustomerRow(cus);
+                return;
+            }
+        }
+        System.out.println("Phone number not found.");
+    }
+
+    private void update() {
+        String id = s.stringValue("Enter ID: ");
+        Customer cus = cusDB.getById(id);
+
+        if (cus == null) {
+            System.out.println("Customer not found. Please enter a valid ID.");
+            return;
+        }
+
+        System.out.println("Leave a field blank to keep its current value.");
+
+        String name = s.stringValue("Name [" + cus.getName() + "]: ");
+        String genderInput = s.stringValue("Gender (MALE/FEMALE/OTHER) [" + cus.getGender() + "]: ");
+        String ageInput = s.stringValue("Age [" + cus.getAge() + "]: ");
+        String phNoInput = s.stringValue("Phone No [" + cus.getPhNo() + "]: ");
+        String email = s.stringValue("Email [" + cus.getEmail() + "]: ");
+
+        if (!name.isBlank()) {
+            cus.setName(name);
+        }
+
+        if (!genderInput.isBlank()) {
+            try {
+                cus.setGender(Gender.valueOf(genderInput.toUpperCase(Locale.ROOT)));
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid gender. Gender not updated.");
+            }
+        }
+
+        if (!ageInput.isBlank()) {
+            try {
+                cus.setAge(Integer.parseInt(ageInput));
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid age. Age not updated.");
+            }
+        }
+
+        if (!phNoInput.isBlank()) {
+            try {
+                cus.setPhNo(Long.parseLong(phNoInput));
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid phone number. Phone number not updated.");
+            }
+        }
+
+        if (!email.isBlank()) {
+            if (cusDB.isEmailTaken(email) && !email.equalsIgnoreCase(cus.getEmail())) {
+                System.out.println("This email is already registered. Email not updated.");
+            } else {
+                cus.setEmail(email);
+            }
+        }
+
+        System.out.println("Customer updated successfully.");
+    }
+
+    private void delete() {
+        String id = s.stringValue("Enter ID: ");
+        if (cusDB.deleteCustomer(id)) {
+            System.out.println("Customer deleted successfully.");
+        } else {
+            System.out.println("Customer not found. Please enter a valid ID.");
+        }
+    }
+
+    private void ticketBookedByCustomer() {
+        String id = s.stringValue("Enter customer ID: ");
+        List<Ticket> tickets = tickDB.getByCusId(id);
+
+        if (tickets.isEmpty()) {
+            System.out.println("No tickets found for this customer ID.");
+            return;
+        }
+
+        for (Ticket ticket : tickets) {
+            TicketPrinter.print(ticket);
+        }
+    }
+
+    private void printHeader() {
+        System.out.println("=============================================");
+        System.out.printf("%-8s %-10s %-8s %-5s %-12s %-20s%n",
+                "Id", "Name", "Gender", "Age", "PhNo", "Email");
+        System.out.println("=============================================");
+    }
+
+    private void printCustomerRow(Customer cus) {
+        System.out.printf("%-8s %-10s %-8s %-5d %-12d %-20s%n",
+                cus.getId(),
+                cus.getName(),
+                cus.getGender(),
+                cus.getAge(),
+                cus.getPhNo(),
+                cus.getEmail());
+    }
+}
+
+
+============================================================
+FILE: src/service/TicketService.java
+============================================================
+
+package service;
+
+import database.BusDatabase;
+import database.CustomerDatabase;
+import database.TicketDatabase;
+import helper.IDGenerator;
+import helper.ScannerHelper;
+import helper.TicketPrinter;
+import model.Bus;
+import model.Customer;
+import model.Ticket;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TicketService {
+    private final ScannerHelper s = new ScannerHelper();
+    private final TicketDatabase tickDB;
+    private final CustomerDatabase cusDB;
+    private final BusDatabase busDB;
+
+    public TicketService(TicketDatabase tickDB, CustomerDatabase cusDB, BusDatabase busDB) {
+        this.tickDB = tickDB;
+        this.cusDB = cusDB;
+        this.busDB = busDB;
+    }
+
+    public void ticketService() {
+        String cusId = s.stringValue("Please enter customer ID: ");
+        Customer cus = cusDB.getById(cusId);
+
+        if (cus == null) {
+            System.out.println("Customer not found. Please register first to book a ticket.");
+            return;
+        }
+
+        while (true) {
+            System.out.println("\n=========== TICKET BOOKING ===========");
+            System.out.println("1. Book Ticket");
+            System.out.println("2. View All Tickets Booked");
+            System.out.println("3. Delete Ticket Booked");
+            System.out.println("4. Back");
+
+            int choice = s.intValue("Enter your choice: ");
+            switch (choice) {
+                case 1:
+                    bookTicket(cus);
+                    break;
+                case 2:
+                    viewAllTicket();
+                    break;
+                case 3:
+                    deleteTicket(cus);
+                    break;
+                case 4:
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void bookTicket(Customer cus) {
+        List<Bus> buses;
+        while (true) {
+            String source = s.stringValue("Enter the source: ");
+            String destination = s.stringValue("Enter the destination: ");
+
+            if (source.isEmpty() || destination.isEmpty()) {
+                System.out.println("Source or destination cannot be empty.");
+                continue;
+            }
+
+            buses = busDB.getBusByRoute(source, destination);
+            if (!buses.isEmpty()) {
+                break;
+            }
+            System.out.println("No buses available for this route. Please try a different route.");
+        }
+
+        System.out.println("Available buses:");
+        printHeader();
+        for (int i = 0; i < buses.size(); i++) {
+            printBusRow(buses.get(i), i + 1);
+        }
+
+        int selectedIndex;
+        while (true) {
+            selectedIndex = s.intValue("Enter bus No to book: ") - 1;
+            if (selectedIndex >= 0 && selectedIndex < buses.size()) {
+                break;
+            }
+            System.out.println("Please enter a valid bus number from the list.");
+        }
+        Bus busSelected = buses.get(selectedIndex);
+
+        seatLayout(busSelected);
+
+        if (busSelected.getSeat().getAvailableSeat() == 0) {
+            System.out.println("This bus has no available seats.");
+            return;
+        }
+
+        int passengerCount;
+        while (true) {
+            passengerCount = s.intValue("Enter the passenger count: ");
+            if (passengerCount > 0 && passengerCount <= busSelected.getSeat().getAvailableSeat()) {
+                break;
+            }
+            System.out.println("Please enter a number between 1 and " + busSelected.getSeat().getAvailableSeat() + ".");
+        }
+
+        List<Integer> bookedSeatNo = new ArrayList<>();
+        for (int i = 0; i < passengerCount; i++) {
+            while (true) {
+                int seatNo = s.intValue("Enter seat No for passenger " + (i + 1) + ": ");
+                if (!busSelected.getSeat().isValidSeatNo(seatNo)) {
+                    System.out.println("Invalid seat number. Please choose between 1 and " + busSelected.getSeat().getTotalSeat() + ".");
+                    continue;
+                }
+                if (busSelected.getSeat().getSeatBookedStatus(seatNo)) {
+                    System.out.println("This seat is already booked. Please select an available seat.");
+                    continue;
+                }
+                busSelected.getSeat().seatBooking(cus, seatNo);
+                bookedSeatNo.add(seatNo);
+                break;
+            }
+        }
+
+        double totalFare = busSelected.getFare() * passengerCount;
+        Ticket ticket = new Ticket(IDGenerator.generateID(), cus, busSelected, bookedSeatNo, passengerCount, totalFare);
+        tickDB.addTicket(ticket);
+
+        System.out.println("\nTicket booked successfully!");
+        TicketPrinter.print(ticket);
+    }
+
+    private void viewAllTicket() {
+        List<Ticket> allTickets = tickDB.getTickDB();
+
+        if (allTickets.isEmpty()) {
+            System.out.println("No tickets have been booked yet.");
+            return;
+        }
+
+        for (Ticket ticket : allTickets) {
+            TicketPrinter.print(ticket);
+        }
+    }
+
+    private void deleteTicket(Customer cus) {
+        List<Ticket> ticketsBooked = tickDB.getByCusId(cus.getId());
+
+        if (ticketsBooked.isEmpty()) {
+            System.out.println("No tickets found for this customer.");
+            return;
+        }
+
+        for (Ticket ticket : ticketsBooked) {
+            TicketPrinter.print(ticket);
+        }
+
+        String ticketId = s.stringValue("Enter the ticket ID to delete: ");
+        Ticket ticketToDelete = tickDB.getById(ticketId);
+
+        if (ticketToDelete == null || !ticketToDelete.getCusBooked().getId().equals(cus.getId())) {
+            System.out.println("Ticket not found for this customer.");
+            return;
+        }
+
+        for (int seatNo : ticketToDelete.getSeatBookedNoRaw()) {
+            if (!ticketToDelete.getBusBooked().getSeat().seatDelete(cus, seatNo)) {
+                System.out.println("Warning: could not free seat " + seatNo + ".");
+            }
+        }
+
+        if (tickDB.deleteTicketById(ticketId)) {
+            System.out.println("Ticket deleted successfully.");
+        } else {
+            System.out.println("Error occurred while deleting the ticket.");
+        }
+    }
+
+    // Helper methods
+
+    private void printHeader() {
+        System.out.println("=======================================================================================================");
+        System.out.printf("%-5s %-10s %-10s %-15s %-12s %-15s %-8s %-10s %-10s%n",
+                "No.", "ID", "Bus No", "Bus Name", "Source", "Destination", "Fare", "Seats", "Available");
+        System.out.println("=======================================================================================================");
+    }
+
+    private void printBusRow(Bus bus, int index) {
+        System.out.printf("%-5d %-10s %-10s %-15s %-12s %-15s %-8.2f %-10d %-10d%n",
+                index,
+                bus.getId(),
+                bus.getBusNo(),
+                bus.getBusName(),
+                bus.getSource(),
+                bus.getDestination(),
+                bus.getFare(),
+                bus.getSeat().getTotalSeat(),
+                bus.getSeat().getAvailableSeat());
+    }
+
+    private void seatLayout(Bus bus) {
+        System.out.println("============================");
+        System.out.println("Bus: " + bus.getBusName());
+        System.out.println("============================");
+
+        for (int i = 1; i <= bus.getSeat().getTotalSeat(); i++) {
+            System.out.print(bus.getSeat().getSeatBookedStatus(i) ? i + "[B] " : i + "[A] ");
+            if (i % 6 == 0) {
+                System.out.println();
+            }
+        }
+        System.out.println("\n============================");
+        System.out.println("A = Available");
+        System.out.println("B = Booked");
+        System.out.println("============================");
+    }
+}
+

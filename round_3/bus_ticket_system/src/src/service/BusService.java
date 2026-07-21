@@ -1,20 +1,18 @@
 package service;
 
 import database.BusDatabase;
-import helper.IDGenerator;
 import helper.ScannerHelper;
+import helper.TicketPrinter;
 import model.Bus;
 
 import java.util.List;
 
 public class BusService {
     private final ScannerHelper s = new ScannerHelper();
-    private final BusDatabase busDatabase = new BusDatabase();
+    private final BusDatabase busDatabase;
 
-    public BusService() {
-        // Seed data
-        busDatabase.addBus(new Bus(IDGenerator.generateID(), "TN01", "Express", "Madurai", "Chennai", 500, 40));
-        busDatabase.addBus(new Bus(IDGenerator.generateID(), "TN02", "Bava Travels", "Madurai", "Ooty", 300, 50));
+    public BusService(BusDatabase busDatabase) {
+        this.busDatabase = busDatabase;
     }
 
     public void busService() {
@@ -67,8 +65,7 @@ public class BusService {
             System.out.println("Bus not found. Please enter a valid Bus ID.");
             return;
         }
-
-        printBusDetails(bus);
+            printBusDetails(bus);
     }
 
     private void searchByRoute() {
@@ -88,30 +85,32 @@ public class BusService {
 
     private void printHeader() {
         System.out.println("----------------------------------------------------------------------------");
-        System.out.printf("%-8s %-10s %-15s %-12s %-15s %-8s %-6s%n",
-                "ID", "Bus No", "Name", "Source", "Destination", "Fare", "Seats");
+        System.out.printf("%-8s %-10s %-15s %-12s %-15s %-8s %-6s %-10s%n",
+                "ID", "Bus No", "Name", "Source", "Destination", "Fare", "Seats", "Available");
         System.out.println("----------------------------------------------------------------------------");
     }
 
     private void printBusRow(Bus bus) {
-        System.out.printf("%-8s %-10s %-15s %-12s %-15s %-8.2f %-6d%n",
+        System.out.printf("%-8s %-10s %-15s %-12s %-15s %-8.2f %-6d %-10d%n",
                 bus.getId(),
                 bus.getBusNo(),
                 bus.getBusName(),
                 bus.getSource(),
                 bus.getDestination(),
                 bus.getFare(),
-                bus.getSeat().getTotalSeat());
+                bus.getSeat().getTotalSeat(),
+                bus.getSeat().getAvailableSeat());
     }
 
     private void printBusDetails(Bus bus) {
         System.out.println("\n========== BUS DETAILS ==========");
-        System.out.println("Bus ID      : " + bus.getId());
-        System.out.println("Bus Number  : " + bus.getBusNo());
-        System.out.println("Bus Name    : " + bus.getBusName());
-        System.out.println("Source      : " + bus.getSource());
-        System.out.println("Destination : " + bus.getDestination());
-        System.out.println("Fare        : " + bus.getFare());
-        System.out.println("Total Seats       : " + bus.getSeat().getTotalSeat());
+        System.out.println("Bus ID          : " + bus.getId());
+        System.out.println("Bus Number      : " + bus.getBusNo());
+        System.out.println("Bus Name        : " + bus.getBusName());
+        System.out.println("Source          : " + bus.getSource());
+        System.out.println("Destination     : " + bus.getDestination());
+        System.out.println("Fare            : " + bus.getFare());
+        System.out.println("Total Seats     : " + bus.getSeat().getTotalSeat());
+        System.out.println("Available Seats : " + bus.getSeat().getAvailableSeat());
     }
 }

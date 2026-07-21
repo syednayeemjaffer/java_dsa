@@ -1,22 +1,25 @@
 package service;
 
 import database.CustomerDatabase;
+import database.TicketDatabase;
 import enums.Gender;
 import helper.IDGenerator;
 import helper.ScannerHelper;
+import helper.TicketPrinter;
 import model.Customer;
+import model.Ticket;
 
 import java.util.List;
 import java.util.Locale;
 
 public class CustomerService {
     private final ScannerHelper s = new ScannerHelper();
-    private final CustomerDatabase cusDB = new CustomerDatabase();
+    private final CustomerDatabase cusDB;
+    private final TicketDatabase tickDB;
 
-    public CustomerService() {
-        // Seed data
-        cusDB.addCustomer(new Customer(IDGenerator.generateID(), "Syed", Gender.MALE, 22, 9344242496L, "syed@gmail.com"));
-        cusDB.addCustomer(new Customer(IDGenerator.generateID(), "Nasreen", Gender.FEMALE, 21, 9344242497L, "nasreen@gmail.com"));
+    public CustomerService(CustomerDatabase cusDB, TicketDatabase tickDB) {
+        this.cusDB = cusDB;
+        this.tickDB = tickDB;
     }
 
     public void customerService() {
@@ -28,7 +31,8 @@ public class CustomerService {
             System.out.println("4. Search Customer by Mobile");
             System.out.println("5. Update Customer");
             System.out.println("6. Delete Customer");
-            System.out.println("7. Back");
+            System.out.println("7. View Tickets Booked by Customer");
+            System.out.println("8. Back");
 
             int choice = s.intValue("Enter your choice: ");
             switch (choice) {
@@ -51,6 +55,9 @@ public class CustomerService {
                     delete();
                     break;
                 case 7:
+                    ticketBookedByCustomer();
+                    break;
+                case 8:
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -194,6 +201,20 @@ public class CustomerService {
             System.out.println("Customer deleted successfully.");
         } else {
             System.out.println("Customer not found. Please enter a valid ID.");
+        }
+    }
+
+    private void ticketBookedByCustomer() {
+        String id = s.stringValue("Enter customer ID: ");
+        List<Ticket> tickets = tickDB.getByCusId(id);
+
+        if (tickets.isEmpty()) {
+            System.out.println("No tickets found for this customer ID.");
+            return;
+        }
+
+        for (Ticket ticket : tickets) {
+            TicketPrinter.print(ticket);
         }
     }
 

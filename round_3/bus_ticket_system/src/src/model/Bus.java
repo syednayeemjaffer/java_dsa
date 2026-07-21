@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Bus {
     private final String id;
     private final String busNo;
@@ -8,7 +11,9 @@ public class Bus {
     private final String destination;
     private final double fare;
     private final Seat seat;
+    private final List<Ticket> totalTicket;
     private static int totalBus;
+
     public Bus(String id, String busNo, String busName, String source, String destination, double fare, int seat) {
         this.id = id;
         this.busNo = busNo;
@@ -17,6 +22,7 @@ public class Bus {
         this.destination = destination;
         this.fare = fare;
         this.seat = new Seat(seat);
+        this.totalTicket = new ArrayList<>();
         totalBus++;
     }
 
@@ -52,6 +58,14 @@ public class Bus {
         return totalBus;
     }
 
+    public List<Ticket> getTotalTicket() {
+        return totalTicket;
+    }
+
+    public boolean addTicket(Ticket tick){
+        totalTicket.add(tick);
+        return true;
+    }
     @Override
     public String toString() {
         return "Bus{" +
@@ -61,8 +75,8 @@ public class Bus {
                 ", source='" + source + '\'' +
                 ", destination='" + destination + '\'' +
                 ", fare=" + fare +
-                ", seat=" + seat.getTotalSeat() +
-                ", seatAvailable=" + seat.getAvailableSeat() +
+                ", totalSeats=" + seat.getTotalSeat() +
+                ", availableSeats=" + seat.getAvailableSeat() +
                 '}';
     }
 }
