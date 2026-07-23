@@ -9,6 +9,7 @@ public class User {
     private int age;
     private long phNo;
     private String email;
+    private int totalTicket;
 
     public User(String id, String name, Gender gender, int age, long phNo, String email) {
         this.id = id;
@@ -17,6 +18,7 @@ public class User {
         this.age = age;
         this.phNo = phNo;
         this.email = email;
+        this.totalTicket = 0;
     }
 
     public String getId() {
@@ -61,6 +63,17 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public int getTotalTicket() {
+        return totalTicket;
+    }
+
+    public void increaseTotalTicket() {
+        totalTicket ++;
+    }
+    public void decreaseTotalTicket() {
+        totalTicket --;
     }
 
     @Override

@@ -161,6 +161,7 @@ public class TicketService {
 
         double totalFare = busSelected.getFare() * passengerCount;
         Ticket ticket = new Ticket(IDGenerator.generateID(), cus, busSelected, bookedSeatNo, passengerCount, totalFare);
+        cus.increaseTotalTicket();
         busSelected.addTicket(ticket);
 
         System.out.println("\nTicket booked successfully!");
@@ -207,6 +208,7 @@ public class TicketService {
         }
 
         if (tickDB.deleteTicketById(ticketId)) {
+            cus.decreaseTotalTicket();
             System.out.println("Ticket deleted successfully.");
         } else {
             System.out.println("Error occurred while deleting the ticket.");

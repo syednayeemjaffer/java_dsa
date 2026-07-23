@@ -5,9 +5,10 @@ import database.CustomerDatabase;
 import database.TicketDatabase;
 import helper.ScannerHelper;
 import model.Bus;
+import model.Customer;
 import model.Ticket;
 
-import java.util.List;
+import java.util.*;
 
 public class ReportService {
     ScannerHelper s = new ScannerHelper();
@@ -46,10 +47,13 @@ public class ReportService {
                     mostBookedBus();
                     break;
                 case 3:
+                    leastBookedBus();
                     break;
                 case 4:
+                    highestPayCus();
                     break;
                 case 5:
+                    dailyRevenue();
                     break;
                 case 6:
                     break;
@@ -101,7 +105,58 @@ public class ReportService {
                 selectedBus = bus;
             }
         }
+        int passangers = selectedBus.getSeat().getTotalSeat() + selectedBus.getSeat().getAvailableSeat();
         
-        System.out.println("Most Booked Bus: "+);
+        System.out.println("Most Booked Bus: "+ selectedBus.getBusName());
+        System.out.println("Passengers : "+passangers);
+        System.out.println("Revenue : "+passangers * selectedBus.getFare());
+    }
+
+    public void leastBookedBus(){
+        List<Bus> buslist = busDB.getBusDB();
+        Bus selectedBus = buslist.get(0);
+        for (Bus bus: buslist){
+            if (bus.getSeat().getAvailableSeat() > selectedBus.getSeat().getAvailableSeat()){
+                selectedBus = bus;
+            }
+        }
+        int passangers = selectedBus.getSeat().getTotalSeat() + selectedBus.getSeat().getAvailableSeat();
+
+        System.out.println("Least Booked Bus: "+ selectedBus.getBusName());
+        System.out.println("Passengers : "+passangers);
+        System.out.println("Revenue : "+passangers * selectedBus.getFare());
+    }
+
+    public void highestPayCus(){
+        List<Ticket> listtick = tickDB.getTickDB();
+        TreeMap<Customer,Double> highSpend = new TreeMap<>();
+        double highestPrice = 0;
+        for (int i =0;i<listtick.size();i++){
+            Customer cus = listtick.get(i).getCusBooked();
+            highSpend.put(
+                    cus,
+                    highSpend.getOrDefault(cus,0.0) + listtick.get(i).getTotalFare()
+            );
+            if(highSpend.get(i) > highestPrice){
+                highestPrice = highSpend.get(i);
+            }
+        }
+        List<Customer> highCus = new ArrayList<>();
+        for (Map.Entry<Customer,Double> map : highSpend.entrySet()){
+            if (map.getKey().equals(highestPrice)){
+                highCus.add(map.getKey());
+            }
+        }
+
+        for (Customer cus : highCus){
+            System.out.println("Customer: "+cus.getName());
+            System.out.println("Tickets : "+cus.getTotalTicket());
+            System.out.println("Spent: "+highestPrice);
+        }
+
+    }
+
+    public void dailyRevenue(){
+
     }
 }
