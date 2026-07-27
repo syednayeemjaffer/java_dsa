@@ -8,6 +8,8 @@ import model.Bus;
 import model.Customer;
 import model.Ticket;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ReportService {
@@ -56,12 +58,16 @@ public class ReportService {
                     dailyRevenue();
                     break;
                 case 6:
+                    routeRevenue();
                     break;
                 case 7:
+                    busRevenueByName();
                     break;
                 case 8:
+                    availableSeatsReport();
                     break;
                 case 9:
+                    customerHistory();
                     break;
                 case 10:
                     break;
@@ -157,6 +163,93 @@ public class ReportService {
     }
 
     public void dailyRevenue(){
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String input = s.stringValue("Enter the Data: ");
+        LocalDate data = LocalDate.parse(input,format);
 
+        List<Ticket> tick = tickDB.getTicketByDate(data);
+        int val = 0;
+        for (Ticket ticket : tick){
+            val += ticket.getTotalFare();
+        }
+        System.out.println("Total revenue: "+ val);
+    }
+
+    public void routeRevenue(){
+        String source = s.stringValue("Enter source: ");
+        String destination = s.stringValue("Enter destination: ");
+        List<Ticket> ticks = tickDB.getTickBySouDest(source,destination);
+        double val = 0;
+        for (Ticket tick : ticks){
+            val += tick.getTotalFare();
+        }
+        System.out.println("Route Revenue: "+val);
+    }
+
+    public void busRevenueByName(){
+        String busid = s.stringValue("Enter bus ID: ");
+        double val = busDB.getById(busid).getTotalTicket()
+                        .stream().mapToDouble(ticket -> ticket.getTotalFare()).sum();
+
+        System.out.println("Bus revenue: "+ val);
+    }
+
+    public void availableSeatsReport(){
+        String busid = s.stringValue("Enter bus ID: ");
+        Bus selectedBus = busDB.getById(busid);
+        int totalSeat = selectedBus.getSeat().getTotalSeat();
+        int availableSeat = selectedBus.getSeat().getAvailableSeat();
+        System.out.println("=============================================================");
+        System.out.println("Bus name: "+selectedBus.getBusName());
+        System.out.println("Total seat: "+totalSeat);
+        System.out.println("Available seat: "+ (totalSeat + availableSeat));
+        int booked = totalSeat - availableSeat;
+        double occupancy = ((double) booked / totalSeat) * 100;
+        System.out.println("Occupancy: " + occupancy);
+    }
+
+    public void customerHistory() {
+        String cusID = s.stringValue("Enter customer ID: ");
+
+        Customer cus = cusDB.getById(cusID);
+
+        if (cus == null) {
+            System.out.println("Customer not found.");
+            return;
+        }
+
+        List<Ticket> tickets = tickDB.getByCusId(cusID);
+
+        if (tickets.isEmpty()) {
+            System.out.println("No tickets booked by this customer.");
+            return;
+        }
+
+        int passengerCount = tickets.stream()
+                .mapToInt(Ticket::getPassengerCount)
+                .sum();
+
+        double moneySpent = tickets.stream()
+                .mapToDouble(Ticket::getTotalFare)
+                .sum();
+
+        LocalDate lastBooking = LocalDate.MIN;
+
+        for (Ticket ticket : tickets) {
+            LocalDate bookingDate = ticket.getBookedDate().toLocalDate();
+
+            if (bookingDate.isAfter(lastBooking)) {
+                lastBooking = bookingDate;
+            }
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        System.out.println("\n========== CUSTOMER BOOKING SUMMARY ==========");
+        System.out.println("Customer Name : " + cus.getName());
+        System.out.println("Tickets       : " + tickets.size());
+        System.out.println("Passengers    : " + passengerCount);
+        System.out.printf("Money Spent   : %.2f%n", moneySpent);
+        System.out.println("Last Booking  : " + lastBooking.format(formatter));
     }
 }

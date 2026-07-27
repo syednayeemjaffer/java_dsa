@@ -63,4 +63,14 @@ public class TicketDatabase {
         }
         return list;
     }
+
+    public List<Ticket> getTickBySouDest(String s, String d){
+        List<Ticket> list = new ArrayList<>();
+        for (Ticket tick : tickDB){
+            if(tick.getBusBooked().getSource().equals(s) && tick.getBusBooked().getDestination().equals(d)){
+                list.add(tick);
+            }
+        }
+        return list;
+    }
 }
