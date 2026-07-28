@@ -49,6 +49,9 @@ public class TicketService {
             System.out.println("8. Bus Occupancy");
             System.out.println("9. Customer Booking Summary");
             System.out.println("10. Bus Booking Summary");
+            System.out.println("11. View Waiting List");
+            System.out.println("12. Search Waiting Customer");
+            System.out.println("13. Cancel Waiting Request");
             System.out.println("11. Back");
 
             int choice = s.intValue("Enter your choice: ");
@@ -84,6 +87,15 @@ public class TicketService {
                     busBookingSummary();
                     break;
                 case 11:
+                    busBookingSummary();
+                    break;
+                case 12:
+                    busBookingSummary();
+                    break;
+                case 13:
+                    busBookingSummary();
+                    break;
+                case 14:
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -124,7 +136,9 @@ public class TicketService {
             System.out.println("Please enter a valid bus number from the list.");
         }
         Bus busSelected = buses.get(selectedIndex);
-
+        if (busSelected.getSeat().getAvailableSeat() == 0){
+            System.out.println("");
+        }
         TicketPrinter.seatLayout(busSelected);
 
         if (busSelected.getSeat().getAvailableSeat() == 0) {
