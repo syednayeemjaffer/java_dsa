@@ -136,15 +136,8 @@ public class TicketService {
             System.out.println("Please enter a valid bus number from the list.");
         }
         Bus busSelected = buses.get(selectedIndex);
-        if (busSelected.getSeat().getAvailableSeat() == 0){
-            System.out.println("");
-        }
         TicketPrinter.seatLayout(busSelected);
-
-        if (busSelected.getSeat().getAvailableSeat() == 0) {
-            System.out.println("This bus has no available seats.");
-            return;
-        }
+        
 
         int passengerCount;
         while (true) {
